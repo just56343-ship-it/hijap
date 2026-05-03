@@ -150,6 +150,7 @@
       .admin-table-card th, .admin-table-card td { padding:10px 10px; font-size:12px; }
     }
   </style>
+<base target="_blank">
 </head>
 <body>
 
@@ -451,6 +452,316 @@
 
 </div>
 
-<script src="script.js"></script>
+<script src="script.js">
+
+/* ═══════════════════════════════════════════
+   ADMIN FUNCTIONS
+   ═══════════════════════════════════════════ */
+
+// Hardcoded admin credentials (for demo/initial setup)
+const ADMIN_EMAIL = 'admin@haj.com';
+const ADMIN_PASSWORD = 'admin123';
+
+let isAdminLoggedIn = false;
+
+function showAdminPage() {
+  // Hide ALL pages first
+  ['main-page','checkout-page','new-collection-page','account-page','success-page','admin-page'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+  // Close cart if open
+  closeCart();
+  closeAuth();
+
+  const adminPage = document.getElementById('admin-page');
+  if (adminPage) adminPage.style.display = 'block';
+
+  // Check if already logged in as admin
+  const adminToken = localStorage.getItem('adminToken');
+  if (adminToken === 'admin_session_2025') {
+    showAdminDashboard();
+  } else {
+    showAdminLogin();
+  }
+  window.scrollTo(0,0);
+}
+
+function showAdminLogin() {
+  const loginScreen = document.getElementById('admin-login-screen');
+  const dashboard = document.getElementById('admin-dashboard');
+  if (loginScreen) loginScreen.style.display = 'flex';
+  if (dashboard) dashboard.style.display = 'none';
+}
+
+function showAdminDashboard() {
+  const loginScreen = document.getElementById('admin-login-screen');
+  const dashboard = document.getElementById('admin-dashboard');
+  if (loginScreen) loginScreen.style.display = 'none';
+  if (dashboard) dashboard.style.display = 'block';
+  loadAdminData();
+}
+
+function adminLogin() {
+  const email = document.getElementById('admin-email').value.trim();
+  const password = document.getElementById('admin-password').value;
+  const errorEl = document.getElementById('admin-login-error');
+
+  if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+    localStorage.setItem('adminToken', 'admin_session_2025');
+    isAdminLoggedIn = true;
+    if (errorEl) errorEl.innerText = '';
+    showAdminDashboard();
+  } else {
+    if (errorEl) errorEl.innerText = '❌ Wrong email or password';
+  }
+}
+
+function adminLogout() {
+  localStorage.removeItem('adminToken');
+  isAdminLoggedIn = false;
+  showAdminLogin();
+}
+
+function switchAdminTab(tab) {
+  document.querySelectorAll('.admin-tab-btn').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('.admin-tab-panel').forEach(panel => panel.classList.remove('active'));
+
+  event.target.classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
+async function loadAdminData() {
+  try {
+    // Try to load from API first
+    const statsData = await apiRequest('/admin/stats');
+    if (statsData.stats) {
+      document.getElementById('stat-revenue').innerText = statsData.stats.totalRevenue + ' EG';
+      document.getElementById('stat-orders').innerText = statsData.stats.totalOrders;
+      document.getElementById('stat-users').innerText = statsData.stats.totalUsers;
+      document.getElementById('stat-pending').innerText = statsData.stats.pendingOrders;
+    }
+
+    const ordersData = await apiRequest('/admin/orders');
+    renderAdminOrders(ordersData.orders || []);
+
+    const usersData = await apiRequest('/admin/users');
+    renderAdminUsers(usersData.users || []);
+  } catch (e) {
+    console.log('Admin API failed, showing demo data');
+    showDemoAdminData();
+  }
+}
+
+function showDemoAdminData() {
+  document.getElementById('stat-revenue').innerText = '0 EG';
+  document.getElementById('stat-orders').innerText = '0';
+  document.getElementById('stat-users').innerText = '2';
+  document.getElementById('stat-pending').innerText = '0';
+
+  document.getElementById('admin-orders-table').innerHTML = 
+    '<div class="admin-empty"><p>📦</p><p>No orders yet</p></div>';
+
+  document.getElementById('admin-users-table').innerHTML = `
+    <table>
+      <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Orders</th></tr></thead>
+      <tbody>
+        <tr><td>user_1</td><td>halaa</td><td>jg@gmail.com</td><td><span class="abadge abadge-user">user</span></td><td>0</td></tr>
+        <tr><td>user_2</td><td>halaa</td><td>jgii@gmail.com</td><td><span class="abadge abadge-user">user</span></td><td>0</td></tr>
+      </tbody>
+    </table>
+  `;
+}
+
+function renderAdminOrders(orders) {
+  const container = document.getElementById('admin-orders-table');
+  if (!orders || orders.length === 0) {
+    container.innerHTML = '<div class="admin-empty"><p>📦</p><p>No orders yet</p></div>';
+    return;
+  }
+
+  container.innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>Order #</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th>Date</th><th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${orders.map(o => `
+          <tr>
+            <td>${o.orderNumber || o.id}</td>
+            <td>${o.shippingInfo?.fullName || 'N/A'}</td>
+            <td>${o.items ? o.items.map(i => i.name).join(', ') : ''}</td>
+            <td>${o.totalAmount || 0} EG</td>
+            <td><span class="abadge abadge-${o.orderStatus || 'pending'}">${o.orderStatus || 'pending'}</span></td>
+            <td>${o.createdAt ? new Date(o.createdAt).toLocaleDateString() : 'N/A'}</td>
+            <td>
+              <select class="status-select" onchange="updateOrderStatus('${o.id}', this.value)">
+                <option value="pending" ${o.orderStatus === 'pending' ? 'selected' : ''}>Pending</option>
+                <option value="processing" ${o.orderStatus === 'processing' ? 'selected' : ''}>Processing</option>
+                <option value="shipped" ${o.orderStatus === 'shipped' ? 'selected' : ''}>Shipped</option>
+                <option value="delivered" ${o.orderStatus === 'delivered' ? 'selected' : ''}>Delivered</option>
+                <option value="cancelled" ${o.orderStatus === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+              </select>
+            </td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+function renderAdminUsers(users) {
+  const container = document.getElementById('admin-users-table');
+  if (!users || users.length === 0) {
+    container.innerHTML = '<div class="admin-empty"><p>👤</p><p>No users found</p></div>';
+    return;
+  }
+
+  container.innerHTML = `
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Orders</th><th>Joined</th></tr>
+      </thead>
+      <tbody>
+        ${users.map(u => `
+          <tr>
+            <td>${u.id}</td>
+            <td>${u.name}</td>
+            <td>${u.email}</td>
+            <td><span class="abadge abadge-${u.role || 'user'}">${u.role || 'user'}</span></td>
+            <td>${u.ordersCount || 0}</td>
+            <td>${u.createdAt ? new Date(u.createdAt).toLocaleDateString() : 'N/A'}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+async function updateOrderStatus(orderId, status) {
+  try {
+    await apiRequest('/admin/orders/' + orderId + '/status', {
+      method: 'PUT',
+      body: JSON.stringify({ status })
+    });
+    alert('✅ Order status updated to: ' + status);
+    loadAdminData();
+  } catch (e) {
+    alert('❌ Failed to update status: ' + e.message);
+  }
+}
+
+// Check if admin on page load
+function checkAdminStatus() {
+  const adminToken = localStorage.getItem('adminToken');
+  const adminBtn = document.getElementById('admin-nav-btn');
+
+  if (adminToken === 'admin_session_2025' && adminBtn) {
+    adminBtn.style.display = 'block';
+  }
+}
+
+// Override loginUser to show admin button for admin users
+const originalLoginUser = loginUser;
+loginUser = function(user) {
+  originalLoginUser(user);
+  if (user && user.role === 'admin') {
+    const adminBtn = document.getElementById('admin-nav-btn');
+    if (adminBtn) adminBtn.style.display = 'block';
+  }
+};
+
+</script>
+
+
+<!-- ====================================================
+  ADMIN PAGE
+==================================================== -->
+<div id="admin-page" style="display:none;">
+  <div class="admin-nav-bar">
+    <div class="admin-logo">⚙️ Haj Admin</div>
+    <div class="admin-greeting" id="admin-greeting">Welcome, Admin</div>
+    <button class="admin-logout-btn" onclick="adminLogout()">Logout</button>
+  </div>
+
+  <!-- Admin Login Screen -->
+  <div class="admin-login-screen" id="admin-login-screen">
+    <div class="admin-login-card">
+      <h2>🔐 Admin Access</h2>
+      <p>Enter your admin credentials to continue</p>
+      <div class="admin-field">
+        <label>Email</label>
+        <input type="email" id="admin-email" placeholder="admin@haj.com" value="admin@haj.com"/>
+      </div>
+      <div class="admin-field">
+        <label>Password</label>
+        <input type="password" id="admin-password" placeholder="Enter password"/>
+      </div>
+      <p class="admin-login-error" id="admin-login-error"></p>
+      <button class="admin-login-btn" onclick="adminLogin()">Login as Admin</button>
+      <p style="text-align:center;margin-top:16px;font-size:12px;color:#9e8e82;">
+        <a onclick="showPage('main')" style="cursor:pointer;">← Back to Store</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- Admin Dashboard -->
+  <div class="admin-dashboard" id="admin-dashboard">
+    <div class="dash-body">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">TOTAL REVENUE</div>
+          <div class="stat-value gold" id="stat-revenue">0 EG</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">TOTAL ORDERS</div>
+          <div class="stat-value" id="stat-orders">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">TOTAL USERS</div>
+          <div class="stat-value green" id="stat-users">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">PENDING</div>
+          <div class="stat-value orange" id="stat-pending">0</div>
+        </div>
+      </div>
+
+      <div class="admin-tabs">
+        <button class="admin-tab-btn active" onclick="switchAdminTab('orders')">📦 Orders</button>
+        <button class="admin-tab-btn" onclick="switchAdminTab('users')">👤 Users</button>
+      </div>
+
+      <!-- Orders Tab -->
+      <div class="admin-tab-panel active" id="tab-orders">
+        <div class="admin-table-card">
+          <div class="admin-table-header">
+            <h3>All Orders</h3>
+            <button class="admin-refresh-btn" onclick="loadAdminData()">🔄 Refresh</button>
+          </div>
+          <div id="admin-orders-table">
+            <div class="admin-loading">Loading orders...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Users Tab -->
+      <div class="admin-tab-panel" id="tab-users">
+        <div class="admin-table-card">
+          <div class="admin-table-header">
+            <h3>All Users</h3>
+            <button class="admin-refresh-btn" onclick="loadAdminData()">🔄 Refresh</button>
+          </div>
+          <div id="admin-users-table">
+            <div class="admin-loading">Loading users...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
