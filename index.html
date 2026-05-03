@@ -158,25 +158,25 @@
 ==================================================== -->
 <div class="auth-overlay" id="auth-overlay" onclick="closeAuth()">
   <div class="auth-box" onclick="event.stopPropagation()">
-    <button class="auth-close" onclick="event.stopPropagation(); closeAuth()">✕</button>
+    <button class="auth-close" onclick="closeAuth()">✕</button>
     <div class="auth-tabs">
-      <button class="auth-tab active" id="tab-login"  onclick="event.stopPropagation(); switchTab('login')">Login</button>
-      <button class="auth-tab"        id="tab-signup" onclick="event.stopPropagation(); switchTab('signup')">Sign Up</button>
+      <button class="auth-tab active" id="tab-login"  onclick="switchTab('login')">Login</button>
+      <button class="auth-tab"        id="tab-signup" onclick="switchTab('signup')">Sign Up</button>
     </div>
     <div id="login-form">
       <h3>Welcome Back 👋</h3>
-      <div class="auth-field"><label>Email</label><input type="email" id="login-email" placeholder="you@email.com" onkeydown="if(event.key==='Enter') login()"/></div>
-      <div class="auth-field"><label>Password</label><input type="password" id="login-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter') login()"/></div>
+      <div class="auth-field"><label>Email</label><input type="email" id="login-email" placeholder="you@email.com" onkeydown="if(event.key==='Enter')login()"/></div>
+      <div class="auth-field"><label>Password</label><input type="password" id="login-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')login()"/></div>
       <p class="auth-error" id="login-error"></p>
-      <button class="auth-btn" id="login-btn" onclick="event.stopPropagation(); login()">Login</button>
+      <button class="auth-btn" onclick="login()">Login</button>
     </div>
     <div id="signup-form" style="display:none;">
       <h3>Create Account ✨</h3>
-      <div class="auth-field"><label>Full Name</label><input type="text" id="signup-name" placeholder="Your name" onkeydown="if(event.key==='Enter') signup()"/></div>
-      <div class="auth-field"><label>Email</label><input type="email" id="signup-email" placeholder="you@email.com" onkeydown="if(event.key==='Enter') signup()"/></div>
-      <div class="auth-field"><label>Password</label><input type="password" id="signup-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter') signup()"/></div>
+      <div class="auth-field"><label>Full Name</label><input type="text" id="signup-name" placeholder="Your name" onkeydown="if(event.key==='Enter')signup()"/></div>
+      <div class="auth-field"><label>Email</label><input type="email" id="signup-email" placeholder="you@email.com" onkeydown="if(event.key==='Enter')signup()"/></div>
+      <div class="auth-field"><label>Password</label><input type="password" id="signup-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')signup()"/></div>
       <p class="auth-error" id="signup-error"></p>
-      <button class="auth-btn" id="signup-btn" onclick="event.stopPropagation(); signup()">Create Account</button>
+      <button class="auth-btn" onclick="signup()">Create Account</button>
     </div>
   </div>
 </div>
@@ -364,6 +364,11 @@
         <input type="text" id="search-input" placeholder="Search hijabs..."
                oninput="handleSearch(this.value)"/>
         <span>🔍</span>
+      </div>
+      <div id="admin-nav-btn" style="display:none;">
+        <div class="account-btn" style="background:#3a2e27;color:#c9a87c;" onclick="showAdminPage()">
+          ⚙️ Admin
+        </div>
       </div>
       <div class="account-btn" onclick="handleAccountClick()">
         👤 <span id="nav-account-label">Login</span>

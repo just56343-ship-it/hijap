@@ -379,6 +379,10 @@ function loginUser(user) {
 
   const savedAddr = document.getElementById('saved-address');
   if (savedAddr && user.address) savedAddr.value = user.address;
+
+  // اظهر زرار Admin لو الuser ادمن
+  const adminBtn = document.getElementById('admin-nav-btn');
+  if (adminBtn) adminBtn.style.display = user.role === 'admin' ? 'block' : 'none';
 }
 
 function logout() {
@@ -386,7 +390,24 @@ function logout() {
   localStorage.removeItem('token');
   const navLabel = document.getElementById('nav-account-label');
   if (navLabel) navLabel.innerText = 'Login';
+  const adminBtn = document.getElementById('admin-nav-btn');
+  if (adminBtn) adminBtn.style.display = 'none';
   showPage('main');
+}
+
+function showAdminPage() {
+  // اخفي كل الصفحات
+  ['main-page','checkout-page','new-collection-page','account-page','success-page']
+    .forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+  const adminPage = document.getElementById('admin-page');
+  if (adminPage) {
+    adminPage.style.display = 'block';
+    loadAdminDashboard();
+  }
+  window.scrollTo(0, 0);
 }
 
 function handleAccountClick() {
