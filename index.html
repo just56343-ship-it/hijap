@@ -763,5 +763,24 @@ loginUser = function(user) {
   </div>
 </div>
 
+
+
+<!-- Quick Admin Access (for testing) -->
+<script>
+// Press Ctrl+Shift+A to open admin dashboard directly
+// Or add ?admin=true to URL
+document.addEventListener('keydown', function(e) {
+  if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+    e.preventDefault();
+    showAdminPage();
+  }
+});
+
+// Check URL for admin parameter
+if (window.location.search.includes('admin=true')) {
+  showAdminPage();
+}
+</script>
+
 </body>
 </html>
