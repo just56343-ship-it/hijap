@@ -1,9 +1,7 @@
 /* ═══════════════════════════════════════════
-   API URL — يكتشف تلقائياً
+   API URL — Railway Production
    ═══════════════════════════════════════════ */
-const API_URL = window.location.origin.startsWith('file')
-  ? 'http://localhost:3000'
-  : window.location.origin;
+const API_URL = 'https://hijap-production.up.railway.app';
 
 function getToken() {
   return localStorage.getItem('token');
