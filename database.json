@@ -2,41 +2,139 @@
   "users": {
     "user_1": {
       "id": "user_1",
-      "name": "halaa",
-      "email": "jg@gmail.com",
-      "password": "$2a$10$RDJy/VCu0u.IzxvRRmHFyOs9QxSq.PRN99DSTIyQZCVU4pioOWoQG",
+      "name": "hala ahmed",
+      "email": "lold@gmail.com",
+      "password": "$2a$10$T/E3SgYJE4z77Sb5QngAvuvO8dB.oN7mo/2khjg2KyKkqIVGhd.j.",
       "address": "",
       "phone": "",
       "orders": [],
       "cart": [],
+      "wishlist": [],
       "role": "user",
-      "createdAt": "2026-05-03T09:08:08.400Z"
-    },
-    "user_2": {
-      "id": "user_2",
-      "name": "halaa",
-      "email": "jgii@gmail.com",
-      "password": "$2a$10$B2SfmZKCfUXfgsbWt8vfEuuBOcd87GLiFDR5v5Zrx5tl3umQ5s/L2",
-      "address": "",
-      "phone": "",
-      "orders": [],
-      "cart": [],
-      "role": "user",
-      "createdAt": "2026-05-03T09:09:32.919Z"
-    },
-    "user_admin": {
-      "id": "user_admin",
-      "name": "Admin",
-      "email": "admin@haj.com",
-      "password": "$2b$10$qu3v3mnqflSMjI1cgZ/hheBUZPBCwrWq1DnMgaqbOzrgfmUz9RWwy",
-      "address": "",
-      "phone": "",
-      "orders": [],
-      "cart": [],
-      "role": "admin",
-      "createdAt": "2026-05-04T00:00:00.000Z"
+      "createdAt": "2026-05-08T19:15:51.965Z"
     }
   },
   "orders": {},
-  "nextId": 3
+  "products": [
+    {
+      "id": 1,
+      "name": "Chiffon hijab with attached inner cap",
+      "price": 120,
+      "category": "chiffon",
+      "color": "multi",
+      "imgs": [
+        "jel8.jpg",
+        "jel3.jpg",
+        "jel4.jpg",
+        "jel5.jpg",
+        "jel6.jpg",
+        "jel7.jpg"
+      ],
+      "rating": 4.5,
+      "reviews": 12,
+      "bestseller": true
+    },
+    {
+      "id": 2,
+      "name": "FLOWERS HIJAB",
+      "price": 180,
+      "category": "printed",
+      "color": "multi",
+      "imgs": [
+        "m2.jpg",
+        "m3.jpg",
+        "m4.jpg",
+        "m5.jpg",
+        "m6.jpg",
+        "m7.jpg"
+      ],
+      "rating": 4.8,
+      "reviews": 24,
+      "bestseller": true
+    },
+    {
+      "id": 3,
+      "name": "STAN HIJAB",
+      "price": 299,
+      "category": "premium",
+      "color": "black",
+      "imgs": [
+        "stan2.jpg",
+        "stan3.jpg",
+        "stan4.jpg",
+        "stan5.jpg",
+        "stan6.jpg",
+        "stan7.jpg"
+      ],
+      "rating": 4.9,
+      "reviews": 8,
+      "bestseller": true
+    },
+    {
+      "id": 4,
+      "name": "PASHAMIL HIJAB",
+      "price": 250,
+      "category": "premium",
+      "color": "beige",
+      "imgs": [
+        "p7.jpg",
+        "p2.jpg",
+        "p8.jpg",
+        "p3.jpg",
+        "p4.jpg",
+        "p5.jpg"
+      ],
+      "rating": 4.6,
+      "reviews": 15,
+      "bestseller": false
+    },
+    {
+      "id": 5,
+      "name": "MILT HIJAB",
+      "price": 150,
+      "category": "cotton",
+      "color": "multi",
+      "imgs": [
+        "c1.jpg",
+        "c2.jpg",
+        "c4.jpg",
+        "c3.jpg",
+        "c5.jpg",
+        "c6.jpg"
+      ],
+      "rating": 4.3,
+      "reviews": 6,
+      "bestseller": false
+    },
+    {
+      "id": 6,
+      "name": "TIGER HIJAB",
+      "price": 200,
+      "category": "printed",
+      "color": "orange",
+      "imgs": [
+        "d1.jpg",
+        "d2.jpg",
+        "d3.jpg",
+        "d5.jpg",
+        "d7.jpg"
+      ],
+      "rating": 4.7,
+      "reviews": 18,
+      "bestseller": false
+    }
+  ],
+  "promoCodes": {
+    "HAJ10": {
+      "discount": 10,
+      "expiresAt": "2026-12-31T23:59:59.000Z"
+    },
+    "WELCOME20": {
+      "discount": 20,
+      "expiresAt": "2026-12-31T23:59:59.000Z"
+    }
+  },
+  "nextUserId": 2,
+  "nextOrderId": 1,
+  "nextProductId": 7
 }
