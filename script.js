@@ -799,7 +799,7 @@ async function addProduct() {
   try {
     await apiRequest('/products', {
       method: 'POST',
-      body: JSON.stringify({ name, price, images: productImages })
+     body: JSON.stringify({ name, price, images: productImages, isBestSeller: false })
     });
 
     nameEl.value = '';

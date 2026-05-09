@@ -151,7 +151,8 @@ app.get('/api/products', (req, res) => {
 app.get('/api/products/bestsellers/list', (req, res) => {
   try {
     const db = readDB();
-    const products = Object.values(db.products || {}).slice(0, 3);
+    const products = Object.values(db.products || {})
+      .filter(p => p.isBestSeller === true);
     return res.json({ success: true, products });
   } catch (e) {
     return res.status(500).json({ success: false, message: 'Server error' });
@@ -159,7 +160,7 @@ app.get('/api/products/bestsellers/list', (req, res) => {
 });
 app.post('/api/products', authMiddleware, adminMiddleware, (req, res) => {
   try {
-    const { name, price, images } = req.body;
+   const { name, price, images, isBestSeller } = req.body;
     if (!name || !price)
       return res.status(400).json({ success: false, message: 'Name and price required' });
 
@@ -171,7 +172,8 @@ app.post('/api/products', authMiddleware, adminMiddleware, (req, res) => {
       id: productId,
       name,
       price: Number(price),
-      images: images || [],
+     images: images || [],
+      isBestSeller: isBestSeller || false,
       createdAt: new Date().toISOString()
     };
     writeDB(db);
