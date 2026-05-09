@@ -1,110 +1,259 @@
-const http = require('http');
+const express = require('express');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const cors = require('cors');
 const fs = require('fs');
-const path = require('path');
 
-const PORT = 3000;
-const USERS_FILE = 'users.json';
-const ORDERS_FILE = 'orders.json';
+const app = express();
+const PORT = process.env.PORT || 3000;
+const JWT_SECRET = process.env.JWT_SECRET || 'haj_secret_key_2025';
+const DB_FILE = 'database.json';
 
-// ── helpers ──────────────────────────────────────────────
-function readJSON(file) {
-  if (!fs.existsSync(file)) return [];
-  return JSON.parse(fs.readFileSync(file, 'utf8'));
-}
+// ── Middleware ────────────────────────────────────────────
+app.use(cors());
+app.use(express.json({ limit: '50mb' }));
 
-function writeJSON(file, data) {
-  fs.writeFileSync(file, JSON.stringify(data, null, 2));
-}
-
-function parseBody(req) {
-  return new Promise((resolve) => {
-    let body = '';
-    req.on('data', chunk => body += chunk);
-    req.on('end', () => {
-      try { resolve(JSON.parse(body)); }
-      catch { resolve({}); }
-    });
-  });
-}
-
-function respond(res, status, data) {
-  res.writeHead(status, {
-    'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS'
-  });
-  res.end(JSON.stringify(data));
-}
-
-// ── server ───────────────────────────────────────────────
-const server = http.createServer(async (req, res) => {
-  // Handle CORS preflight
-  if (req.method === 'OPTIONS') {
-    respond(res, 200, {});
-    return;
+// ── Database Helpers ──────────────────────────────────────
+function readDB() {
+  if (!fs.existsSync(DB_FILE)) {
+    const init = { users: {}, orders: {}, products: {}, nextId: 1 };
+    fs.writeFileSync(DB_FILE, JSON.stringify(init, null, 2));
+    return init;
   }
+  return JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
+}
 
-  const url = req.url;
+function writeDB(data) {
+  fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
+}
 
-  // ── تسجيل حساب جديد ──
-  if (url === '/register' && req.method === 'POST') {
-    const { name, email, password } = await parseBody(req);
+// ── Auth Middleware ───────────────────────────────────────
+function authMiddleware(req, res, next) {
+  const token = (req.headers['authorization'] || '').split(' ')[1];
+  if (!token) return res.status(401).json({ success: false, message: 'No token provided' });
+  try {
+    req.userId = jwt.verify(token, JWT_SECRET).userId;
+    next();
+  } catch {
+    return res.status(401).json({ success: false, message: 'Invalid token' });
+  }
+}
 
+function adminMiddleware(req, res, next) {
+  const db = readDB();
+  const user = db.users[req.userId];
+  if (!user || user.role !== 'admin')
+    return res.status(403).json({ success: false, message: 'Admin access required' });
+  next();
+}
+
+// ── Root ──────────────────────────────────────────────────
+app.get('/', (req, res) => res.json({ success: true, message: 'Haj API شغال ✅' }));
+
+// ════════════════════════════════════════════
+//  AUTH  /api/auth/...
+// ════════════════════════════════════════════
+
+app.post('/api/auth/register', async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
     if (!name || !email || !password)
-      return respond(res, 400, { error: 'كل الحقول مطلوبة' });
+      return res.status(400).json({ success: false, message: 'كل الحقول مطلوبة' });
+    if (password.length < 6)
+      return res.status(400).json({ success: false, message: 'الباسورد لازم يكون 6 حروف على الأقل' });
 
-    const users = readJSON(USERS_FILE);
-    if (users.find(u => u.email === email))
-      return respond(res, 400, { error: 'الإيميل ده مسجل قبل كده' });
+    const db = readDB();
+    if (Object.values(db.users).find(u => u.email === email))
+      return res.status(400).json({ success: false, message: 'الإيميل ده مسجل قبل كده' });
 
-    users.push({ id: Date.now(), name, email, password });
-    writeJSON(USERS_FILE, users);
-    return respond(res, 201, { message: 'تم إنشاء الحساب بنجاح!' });
-  }
-
-  // ── تسجيل دخول ──
-  if (url === '/login' && req.method === 'POST') {
-    const { email, password } = await parseBody(req);
-
-    const users = readJSON(USERS_FILE);
-    const user = users.find(u => u.email === email && u.password === password);
-
-    if (!user)
-      return respond(res, 401, { error: 'الإيميل أو الباسورد غلط' });
-
-    return respond(res, 200, { message: 'تم تسجيل الدخول!', user: { id: user.id, name: user.name, email: user.email } });
-  }
-
-  // ── إضافة أوردر ──
-  if (url === '/order' && req.method === 'POST') {
-    const { name, phone, address, items, total } = await parseBody(req);
-
-    if (!name || !phone || !address || !items)
-      return respond(res, 400, { error: 'بيانات الأوردر ناقصة' });
-
-    const orders = readJSON(ORDERS_FILE);
-    const order = {
-      id: Date.now(),
-      name, phone, address, items, total,
-      date: new Date().toLocaleString('ar-EG'),
-      status: 'جديد'
+    const userId = 'user_' + (db.nextId || 1);
+    db.nextId = (db.nextId || 1) + 1;
+    db.users[userId] = {
+      id: userId, name, email,
+      password: await bcrypt.hash(password, 10),
+      address: '', phone: '', orders: [], cart: [],
+      role: 'user', createdAt: new Date().toISOString()
     };
-    orders.push(order);
-    writeJSON(ORDERS_FILE, orders);
-    return respond(res, 201, { message: 'تم استلام أوردرك!', orderId: order.id });
-  }
+    writeDB(db);
 
-  // ── عرض كل الأوردرات ──
-  if (url === '/orders' && req.method === 'GET') {
-    const orders = readJSON(ORDERS_FILE);
-    return respond(res, 200, orders);
+    const token = jwt.sign({ userId }, JWT_SECRET, { expiresIn: '30d' });
+    const { password: _, ...userSafe } = db.users[userId];
+    return res.status(201).json({ success: true, token, user: userSafe });
+  } catch (e) {
+    console.error('Register error:', e);
+    return res.status(500).json({ success: false, message: 'Server error' });
   }
-
-  // ── الصفحة الرئيسية ──
-  respond(res, 200, { message: 'السيرفر شغال ✅' });
 });
 
-server.listen(PORT, () => {
-  console.log(`✅ السيرفر شغال على http://localhost:${PORT}`);
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password)
+      return res.status(400).json({ success: false, message: 'كل الحقول مطلوبة' });
+
+    const db = readDB();
+    const user = Object.values(db.users).find(u => u.email === email);
+    if (!user || !(await bcrypt.compare(password, user.password)))
+      return res.status(401).json({ success: false, message: 'الإيميل أو الباسورد غلط' });
+
+    const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '30d' });
+    const { password: _, ...userSafe } = user;
+    return res.json({ success: true, token, user: userSafe });
+  } catch (e) {
+    console.error('Login error:', e);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
 });
+
+app.get('/api/auth/me', authMiddleware, (req, res) => {
+  try {
+    const db = readDB();
+    const user = db.users[req.userId];
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+    const { password: _, ...userSafe } = user;
+    return res.json({ success: true, user: userSafe });
+  } catch (e) {
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+app.put('/api/auth/profile', authMiddleware, (req, res) => {
+  try {
+    const db = readDB();
+    const user = db.users[req.userId];
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+    const { address, phone, name } = req.body;
+    if (address !== undefined) user.address = address;
+    if (phone   !== undefined) user.phone   = phone;
+    if (name    !== undefined) user.name    = name;
+    writeDB(db);
+    const { password: _, ...userSafe } = user;
+    return res.json({ success: true, user: userSafe });
+  } catch (e) {
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// ════════════════════════════════════════════
+//  PRODUCTS  /api/products/...
+// ════════════════════════════════════════════
+
+app.get('/api/products', (req, res) => {
+  try {
+    const db = readDB();
+    return res.json({ success: true, products: Object.values(db.products || {}) });
+  } catch (e) {
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+app.get('/api/products/bestsellers/list', (req, res) => {
+  try {
+    const db = readDB();
+    const products = Object.values(db.products || {}).slice(0, 3);
+    return res.json({ success: true, products });
+  } catch (e) {
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// ════════════════════════════════════════════
+//  ORDERS  /api/orders/...
+// ════════════════════════════════════════════
+
+app.post('/api/orders', authMiddleware, (req, res) => {
+  try {
+    const { items, shippingInfo, paymentMethod } = req.body;
+    if (!items || !shippingInfo?.fullName || !shippingInfo?.phone || !shippingInfo?.address)
+      return res.status(400).json({ success: false, message: 'بيانات الأوردر ناقصة' });
+
+    const db = readDB();
+    if (!db.orders) db.orders = {};
+
+    const orderId = 'order_' + Date.now();
+    const order = {
+      id: orderId,
+      orderNumber: 'HAJ-' + Date.now().toString().slice(-6),
+      userId: req.userId,
+      items,
+      shippingInfo,
+      paymentMethod: paymentMethod || 'cash',
+      totalAmount: items.reduce((s, i) => s + i.price * (i.quantity || 1), 0),
+      orderStatus: 'pending',
+      createdAt: new Date().toISOString()
+    };
+
+    db.orders[orderId] = order;
+    if (db.users[req.userId]) {
+      if (!db.users[req.userId].orders) db.users[req.userId].orders = [];
+      db.users[req.userId].orders.push(order);
+    }
+    writeDB(db);
+    return res.status(201).json({ success: true, order });
+  } catch (e) {
+    console.error('Order error:', e);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// ════════════════════════════════════════════
+//  ADMIN  /api/admin/...
+// ════════════════════════════════════════════
+
+app.get('/api/admin/stats', authMiddleware, adminMiddleware, (req, res) => {
+  try {
+    const db = readDB();
+    const orders = Object.values(db.orders || {});
+    const users  = Object.values(db.users  || {}).filter(u => u.role !== 'admin');
+    return res.json({
+      success: true,
+      stats: {
+        totalRevenue:  orders.reduce((s, o) => s + (o.totalAmount || 0), 0),
+        totalOrders:   orders.length,
+        totalUsers:    users.length,
+        pendingOrders: orders.filter(o => o.orderStatus === 'pending').length
+      }
+    });
+  } catch (e) {
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+app.get('/api/admin/orders', authMiddleware, adminMiddleware, (req, res) => {
+  try {
+    const db = readDB();
+    const orders = Object.values(db.orders || {}).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    return res.json({ success: true, orders });
+  } catch (e) {
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+app.put('/api/admin/orders/:id/status', authMiddleware, adminMiddleware, (req, res) => {
+  try {
+    const db = readDB();
+    const order = db.orders[req.params.id];
+    if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+    order.orderStatus = req.body.status;
+    writeDB(db);
+    return res.json({ success: true, order });
+  } catch (e) {
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+app.get('/api/admin/users', authMiddleware, adminMiddleware, (req, res) => {
+  try {
+    const db = readDB();
+    const users = Object.values(db.users || {}).map(u => {
+      const { password: _, ...safe } = u;
+      return { ...safe, ordersCount: (u.orders || []).length };
+    });
+    return res.json({ success: true, users });
+  } catch (e) {
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// ── Start ─────────────────────────────────────────────────
+app.listen(PORT, () => console.log(`✅ Haj Server شغال على port ${PORT}`));
