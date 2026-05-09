@@ -714,3 +714,175 @@ function formatExpiry(input) {
   if (v.length >= 2) v = v.substring(0, 2) + ' / ' + v.substring(2);
   input.value = v;
 }
+/* ═══════════════════════════════════════════
+   ADMIN PRODUCTS MANAGEMENT
+   ═══════════════════════════════════════════ */
+
+let productImages = []; // base64 images for new product
+
+// ── Drag & Drop ──────────────────────────────
+(function setupDragDrop() {
+  document.addEventListener('DOMContentLoaded', () => {
+    const dropArea = document.getElementById('prod-img-drop');
+    if (!dropArea) return;
+    ['dragenter','dragover'].forEach(e => {
+      dropArea.addEventListener(e, ev => { ev.preventDefault(); dropArea.classList.add('drag-over'); });
+    });
+    ['dragleave','drop'].forEach(e => {
+      dropArea.addEventListener(e, ev => { ev.preventDefault(); dropArea.classList.remove('drag-over'); });
+    });
+    dropArea.addEventListener('drop', ev => {
+      const files = Array.from(ev.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+      processProductImageFiles(files);
+    });
+  });
+})();
+
+function handleProductImages(input) {
+  const files = Array.from(input.files);
+  processProductImageFiles(files);
+  input.value = '';
+}
+
+function processProductImageFiles(files) {
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      productImages.push(e.target.result);
+      renderProductPreviews();
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderProductPreviews() {
+  const container = document.getElementById('prod-img-previews');
+  if (!container) return;
+  container.innerHTML = productImages.map((src, i) => `
+    <div class="prod-preview-wrap ${i === 0 ? 'first-badge' : ''}">
+      <img src="${src}" alt="preview ${i+1}"/>
+      <button class="prod-preview-remove" onclick="removeProductImage(${i})">✕</button>
+    </div>
+  `).join('');
+}
+
+function removeProductImage(index) {
+  productImages.splice(index, 1);
+  renderProductPreviews();
+}
+
+// ── Load/Save Products ───────────────────────
+function getLocalProducts() {
+  try {
+    return JSON.parse(localStorage.getItem('haj_products') || '[]');
+  } catch { return []; }
+}
+
+function saveLocalProducts(products) {
+  localStorage.setItem('haj_products', JSON.stringify(products));
+}
+
+// ── Add Product ──────────────────────────────
+function addProduct() {
+  const nameEl = document.getElementById('prod-name');
+  const priceEl = document.getElementById('prod-price');
+  const errEl = document.getElementById('prod-form-error');
+
+  const name = nameEl ? nameEl.value.trim() : '';
+  const price = priceEl ? priceEl.value.trim() : '';
+
+  if (!name) { if (errEl) errEl.innerText = '❌ Please enter a product name.'; return; }
+  if (!price || isNaN(price) || Number(price) <= 0) { if (errEl) errEl.innerText = '❌ Please enter a valid price.'; return; }
+  if (productImages.length === 0) { if (errEl) errEl.innerText = '❌ Please add at least one image.'; return; }
+  if (errEl) errEl.innerText = '';
+
+  const products = getLocalProducts();
+  const newProduct = {
+    id: Date.now(),
+    name,
+    price: price.toString(),
+    imgs: [...productImages]
+  };
+  products.push(newProduct);
+  saveLocalProducts(products);
+
+  // Reset form
+  if (nameEl) nameEl.value = '';
+  if (priceEl) priceEl.value = '';
+  productImages = [];
+  renderProductPreviews();
+
+  // Refresh product list & store data
+  renderAdminProductsList();
+  refreshAllProductsData();
+
+  // Success feedback
+  const btn = document.querySelector('#tab-products .admin-login-btn');
+  if (btn) {
+    btn.innerText = '✅ Product Added!';
+    btn.style.background = '#5a9e6f';
+    setTimeout(() => { btn.innerText = '✅ Add Product'; btn.style.background = '#3a2e27'; }, 2000);
+  }
+}
+
+// ── Delete Product ───────────────────────────
+function deleteProduct(id) {
+  if (!confirm('Are you sure you want to delete this product?')) return;
+  const products = getLocalProducts().filter(p => p.id !== id);
+  saveLocalProducts(products);
+  renderAdminProductsList();
+  refreshAllProductsData();
+}
+
+// ── Render Admin Products List ───────────────
+function renderAdminProductsList() {
+  const container = document.getElementById('admin-products-list');
+  const countEl = document.getElementById('products-count');
+  if (!container) return;
+
+  const products = getLocalProducts();
+  if (countEl) countEl.innerText = products.length + ' product(s)';
+
+  if (products.length === 0) {
+    container.innerHTML = '<div class="admin-empty"><p>🛍️</p><p>No products yet. Add your first product above!</p></div>';
+    return;
+  }
+
+  container.innerHTML = `<div class="admin-products-grid">
+    ${products.map(p => `
+      <div class="admin-product-card">
+        <img class="admin-product-card-img" src="${p.imgs[0]}" alt="${p.name}"/>
+        <div class="admin-product-card-body">
+          <p class="admin-product-card-name">${p.name}</p>
+          <p class="admin-product-card-price">${p.price} EG</p>
+          <p class="admin-product-card-imgs">📸 ${p.imgs.length} image(s)</p>
+          <button class="admin-product-delete-btn" onclick="deleteProduct(${p.id})">🗑️ Delete</button>
+        </div>
+      </div>
+    `).join('')}
+  </div>`;
+}
+
+// ── Refresh store products from local storage ──
+function refreshAllProductsData() {
+  const localProds = getLocalProducts();
+  if (localProds.length > 0) {
+    // override allProducts with local ones
+    allProducts.length = 0;
+    localProds.forEach(p => allProducts.push(p));
+  }
+  buildNewCollection();
+  buildBestSellers();
+}
+
+// ── Override tab switch to load products ────
+// On page load, merge local products into allProducts
+(function initLocalProducts() {
+  const localProds = getLocalProducts();
+  if (localProds.length > 0) {
+    allProducts.length = 0;
+    localProds.forEach(p => allProducts.push(p));
+    buildNewCollection();
+    buildBestSellers();
+  }
+})();
