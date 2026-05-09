@@ -294,3 +294,212 @@ nav { display:flex; align-items:center; justify-content:space-between; padding:1
   .footer-logo-big img { height:80px; }
   .footer-links { gap:28px; }
 }
+/* ══════════════════════════════════════
+   ANIMATIONS & MOTION
+══════════════════════════════════════ */
+
+/* ── Hero Entrance ── */
+@keyframes fadeSlideUp {
+  from { opacity:0; transform:translateY(40px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+@keyframes fadeSlideLeft {
+  from { opacity:0; transform:translateX(40px); }
+  to   { opacity:1; transform:translateX(0); }
+}
+@keyframes fadeIn {
+  from { opacity:0; }
+  to   { opacity:1; }
+}
+
+.hero-text h1 {
+  animation: fadeSlideUp 0.9s ease both;
+  animation-delay: 0.1s;
+}
+.hero-text p {
+  animation: fadeSlideUp 0.9s ease both;
+  animation-delay: 0.3s;
+}
+.hero-btn {
+  animation: fadeSlideUp 0.9s ease both;
+  animation-delay: 0.5s;
+}
+.hero-img-right img {
+  animation: fadeSlideLeft 1.1s ease both;
+  animation-delay: 0.2s;
+}
+
+/* ── Nav scroll shrink ── */
+nav {
+  transition: padding 0.3s ease, box-shadow 0.3s ease;
+}
+nav.scrolled {
+  padding: 10px 60px;
+  box-shadow: 0 2px 20px rgba(58,46,39,0.12);
+}
+
+/* ── Product Cards ── */
+.product-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  animation: fadeSlideUp 0.7s ease both;
+}
+.product-card:nth-child(1) { animation-delay: 0.1s; }
+.product-card:nth-child(2) { animation-delay: 0.2s; }
+.product-card:nth-child(3) { animation-delay: 0.3s; }
+
+.product-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 16px 40px rgba(58,46,39,0.14);
+}
+.product-card img {
+  transition: transform 0.5s ease;
+}
+.product-card:hover img {
+  transform: scale(1.05);
+}
+.product-card { overflow: hidden; border-radius: 6px; }
+
+/* ── NC Cards ── */
+.nc-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  animation: fadeSlideUp 0.7s ease both;
+}
+.nc-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 50px rgba(58,46,39,0.12);
+}
+.nc-main-img {
+  transition: transform 0.5s ease, opacity 0.35s ease;
+}
+.nc-card:hover .nc-main-img {
+  transform: scale(1.04);
+}
+
+/* ── About Section ── */
+.about-text {
+  animation: fadeSlideUp 0.8s ease both;
+  animation-delay: 0.15s;
+}
+.about-img {
+  animation: fadeSlideLeft 0.9s ease both;
+  animation-delay: 0.3s;
+}
+
+/* ── Buttons pulse on hover ── */
+.hero-btn, .read-more-btn, .collections-link-btn,
+.checkout-btn, .auth-btn, .submit-order-btn,
+.nc-add-btn, .success-btn {
+  position: relative;
+  overflow: hidden;
+}
+.hero-btn::after, .collections-link-btn::after,
+.auth-btn::after, .submit-order-btn::after,
+.nc-add-btn::after, .checkout-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.15);
+  transform: translateX(-100%);
+  transition: transform 0.4s ease;
+}
+.hero-btn:hover::after, .collections-link-btn:hover::after,
+.auth-btn:hover::after, .submit-order-btn:hover::after,
+.nc-add-btn:hover::after, .checkout-btn:hover::after {
+  transform: translateX(0);
+}
+
+/* ── Cart overlay fade ── */
+.cart-overlay {
+  transition: opacity 0.25s ease;
+}
+.cart-box {
+  animation: fadeSlideUp 0.35s ease both;
+}
+
+/* ── Auth popup ── */
+.auth-overlay {
+  transition: opacity 0.25s ease;
+}
+.auth-box {
+  animation: fadeSlideUp 0.35s ease both;
+}
+
+/* ── Nav links hover underline ── */
+.nav-links a {
+  position: relative;
+}
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -3px; left: 0;
+  width: 0; height: 1.5px;
+  background: #c9a87c;
+  transition: width 0.25s ease;
+}
+.nav-links a:hover::after {
+  width: 100%;
+}
+
+/* ── Footer links ── */
+.footer-col a {
+  position: relative;
+  padding-left: 0;
+  transition: padding-left 0.2s ease, color 0.2s;
+}
+.footer-col a:hover {
+  padding-left: 6px;
+}
+
+/* ── Scroll reveal (JS adds .revealed) ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── NC thumb hover ── */
+.nc-thumb {
+  transition: opacity 0.2s, border 0.2s, transform 0.2s;
+}
+.nc-thumb:hover {
+  transform: scale(1.08);
+}
+
+/* ── Account card ── */
+.account-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.account-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(58,46,39,0.1);
+}
+
+/* ── Success icon bounce ── */
+@keyframes bounce {
+  0%,100% { transform: translateY(0); }
+  30%      { transform: translateY(-18px); }
+  60%      { transform: translateY(-8px); }
+}
+.success-icon {
+  animation: bounce 1s ease 0.3s both;
+  display: inline-block;
+}
+
+/* ── Cart count pop ── */
+@keyframes pop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.5); }
+  100% { transform: scale(1); }
+}
+.cart-count.pop {
+  animation: pop 0.3s ease;
+}
+
+/* ── Page load fade ── */
+#main-page {
+  animation: fadeIn 0.5s ease both;
+}

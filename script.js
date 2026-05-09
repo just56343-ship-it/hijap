@@ -886,3 +886,49 @@ function refreshAllProductsData() {
     buildBestSellers();
   }
 })();
+
+/* ═══════════════════════════════════════════
+   ANIMATIONS & SCROLL EFFECTS
+   ═══════════════════════════════════════════ */
+
+// ── Nav shrink on scroll ──────────────────
+window.addEventListener('scroll', () => {
+  const nav = document.querySelector('nav');
+  if (nav) {
+    if (window.scrollY > 40) nav.classList.add('scrolled');
+    else nav.classList.remove('scrolled');
+  }
+});
+
+// ── Scroll Reveal ─────────────────────────
+function initReveal() {
+  const elements = document.querySelectorAll(
+    '.about, .products h2, .products-sub, .nc-hero, .footer-top h2'
+  );
+  elements.forEach(el => el.classList.add('reveal'));
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('revealed');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+}
+
+document.addEventListener('DOMContentLoaded', initReveal);
+
+// ── Cart count pop animation ──────────────
+const _origUpdateCart = updateCart;
+updateCart = function() {
+  _origUpdateCart();
+  const count = document.getElementById('cart-count');
+  if (count) {
+    count.classList.remove('pop');
+    void count.offsetWidth;
+    count.classList.add('pop');
+  }
+};
