@@ -783,28 +783,40 @@ function saveLocalProducts(products) {
 }
 
 // ── Add Product ──────────────────────────────
-function addProduct() {
+async function addProduct() {
   const nameEl = document.getElementById('prod-name');
   const priceEl = document.getElementById('prod-price');
   const errEl = document.getElementById('prod-form-error');
 
-  const name = nameEl ? nameEl.value.trim() : '';
-  const price = priceEl ? priceEl.value.trim() : '';
+  const name = nameEl?.value.trim();
+  const price = priceEl?.value.trim();
 
-  if (!name) { if (errEl) errEl.innerText = '❌ Please enter a product name.'; return; }
-  if (!price || isNaN(price) || Number(price) <= 0) { if (errEl) errEl.innerText = '❌ Please enter a valid price.'; return; }
-  if (productImages.length === 0) { if (errEl) errEl.innerText = '❌ Please add at least one image.'; return; }
-  if (errEl) errEl.innerText = '';
+  if (!name) { errEl.innerText = '❌ Enter product name'; return; }
+  if (!price || isNaN(price) || Number(price) <= 0) { errEl.innerText = '❌ Enter valid price'; return; }
+  if (productImages.length === 0) { errEl.innerText = '❌ Add at least one image'; return; }
+  errEl.innerText = '';
 
-  const products = getLocalProducts();
-  const newProduct = {
-    id: Date.now(),
-    name,
-    price: price.toString(),
-    imgs: [...productImages]
-  };
-  products.push(newProduct);
-  saveLocalProducts(products);
+  try {
+    await apiRequest('/products', {
+      method: 'POST',
+      body: JSON.stringify({ name, price, images: productImages })
+    });
+
+    nameEl.value = '';
+    priceEl.value = '';
+    productImages = [];
+    renderProductPreviews();
+    renderAdminProductsList();
+    buildNewCollection();
+    buildBestSellers();
+
+    errEl.style.color = '#5a9e6f';
+    errEl.innerText = '✅ Product added!';
+    setTimeout(() => { errEl.innerText = ''; errEl.style.color = '#e07070'; }, 2000);
+  } catch (e) {
+    errEl.innerText = '❌ ' + e.message;
+  }
+}
 
   // Reset form
   if (nameEl) nameEl.value = '';
@@ -823,44 +835,53 @@ function addProduct() {
     btn.style.background = '#5a9e6f';
     setTimeout(() => { btn.innerText = '✅ Add Product'; btn.style.background = '#3a2e27'; }, 2000);
   }
-}
+
 
 // ── Delete Product ───────────────────────────
-function deleteProduct(id) {
+async function deleteProduct(id) {
   if (!confirm('Are you sure you want to delete this product?')) return;
-  const products = getLocalProducts().filter(p => p.id !== id);
-  saveLocalProducts(products);
-  renderAdminProductsList();
-  refreshAllProductsData();
+  try {
+    await apiRequest('/products/' + id, { method: 'DELETE' });
+    renderAdminProductsList();
+    buildNewCollection();
+    buildBestSellers();
+  } catch (e) {
+    alert('❌ Failed to delete: ' + e.message);
+  }
 }
 
 // ── Render Admin Products List ───────────────
-function renderAdminProductsList() {
+async function renderAdminProductsList() {
   const container = document.getElementById('admin-products-list');
   const countEl = document.getElementById('products-count');
   if (!container) return;
 
-  const products = getLocalProducts();
-  if (countEl) countEl.innerText = products.length + ' product(s)';
+  try {
+    const data = await apiRequest('/products');
+    const products = data.products || [];
+    if (countEl) countEl.innerText = products.length + ' product(s)';
 
-  if (products.length === 0) {
-    container.innerHTML = '<div class="admin-empty"><p>🛍️</p><p>No products yet. Add your first product above!</p></div>';
-    return;
-  }
+    if (products.length === 0) {
+      container.innerHTML = '<div class="admin-empty"><p>🛍️</p><p>No products yet</p></div>';
+      return;
+    }
 
-  container.innerHTML = `<div class="admin-products-grid">
-    ${products.map(p => `
-      <div class="admin-product-card">
-        <img class="admin-product-card-img" src="${p.imgs[0]}" alt="${p.name}"/>
-        <div class="admin-product-card-body">
-          <p class="admin-product-card-name">${p.name}</p>
-          <p class="admin-product-card-price">${p.price} EG</p>
-          <p class="admin-product-card-imgs">📸 ${p.imgs.length} image(s)</p>
-          <button class="admin-product-delete-btn" onclick="deleteProduct(${p.id})">🗑️ Delete</button>
+    container.innerHTML = `<div class="admin-products-grid">
+      ${products.map(p => `
+        <div class="admin-product-card">
+          <img class="admin-product-card-img" src="${p.images?.[0] || ''}" alt="${p.name}"/>
+          <div class="admin-product-card-body">
+            <p class="admin-product-card-name">${p.name}</p>
+            <p class="admin-product-card-price">${p.price} EG</p>
+            <p class="admin-product-card-imgs">📸 ${p.images?.length || 0} image(s)</p>
+            <button class="admin-product-delete-btn" onclick="deleteProduct('${p.id}')">🗑️ Delete</button>
+          </div>
         </div>
-      </div>
-    `).join('')}
-  </div>`;
+      `).join('')}
+    </div>`;
+  } catch (e) {
+    container.innerHTML = '<div class="admin-empty"><p>❌ Failed to load products</p></div>';
+  }
 }
 
 // ── Refresh store products from local storage ──

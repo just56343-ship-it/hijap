@@ -157,7 +157,42 @@ app.get('/api/products/bestsellers/list', (req, res) => {
     return res.status(500).json({ success: false, message: 'Server error' });
   }
 });
+app.post('/api/products', authMiddleware, adminMiddleware, (req, res) => {
+  try {
+    const { name, price, images } = req.body;
+    if (!name || !price)
+      return res.status(400).json({ success: false, message: 'Name and price required' });
 
+    const db = readDB();
+    if (!db.products) db.products = {};
+
+    const productId = 'prod_' + Date.now();
+    db.products[productId] = {
+      id: productId,
+      name,
+      price: Number(price),
+      images: images || [],
+      createdAt: new Date().toISOString()
+    };
+    writeDB(db);
+    return res.status(201).json({ success: true, product: db.products[productId] });
+  } catch (e) {
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+app.delete('/api/products/:id', authMiddleware, adminMiddleware, (req, res) => {
+  try {
+    const db = readDB();
+    if (!db.products?.[req.params.id])
+      return res.status(404).json({ success: false, message: 'Product not found' });
+    delete db.products[req.params.id];
+    writeDB(db);
+    return res.json({ success: true });
+  } catch (e) {
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
 // ════════════════════════════════════════════
 //  ORDERS  /api/orders/...
 // ════════════════════════════════════════════
