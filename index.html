@@ -642,7 +642,7 @@ function renderAdminOrders(orders) {
     <table>
       <thead>
         <tr>
-          <th>Order #</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th>Date</th><th>Action</th>
+          <th>Order #</th><th>Customer</th><th>📞 Phone</th><th>📍 Address</th><th>Items</th><th>Total</th><th>Status</th><th>Date</th><th>Action</th>
         </tr>
       </thead>
       <tbody>
@@ -650,6 +650,8 @@ function renderAdminOrders(orders) {
           <tr>
             <td>${o.orderNumber || o.id}</td>
             <td>${o.shippingInfo?.fullName || 'N/A'}</td>
+            <td>${o.shippingInfo?.phone || '—'}</td>
+            <td style="max-width:180px;word-break:break-word;">${o.shippingInfo?.address || '—'}${o.shippingInfo?.notes ? '<br/><span style="color:#9e8e82;font-size:11px;">📝 ' + o.shippingInfo.notes + '</span>' : ''}</td>
             <td>${o.items ? o.items.map(i => i.name).join(', ') : ''}</td>
             <td>${o.totalAmount || 0} EG</td>
             <td><span class="abadge abadge-${o.orderStatus || 'pending'}">${o.orderStatus || 'pending'}</span></td>
