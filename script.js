@@ -47,14 +47,34 @@ async function apiRequest(endpoint, options = {}) {
 /* ═══════════════════════════════════════════
    بيانات المنتجات (Fallback)
    ═══════════════════════════════════════════ */
-const allProducts = [
-  { id:1, name:'Chiffon hijab with attached inner cap', price:'120', imgs:['jel8.jpg','jel3.jpg','jel4.jpg','jel5.jpg','jel6.jpg','jel7.jpg'] },
-  { id:2, name:'FLOWERS HIJAB',  price:'180', imgs:['m2.jpg','m3.jpg','m4.jpg','m5.jpg','m6.jpg','m7.jpg'] },
-  { id:3, name:'STAN HIJAB',     price:'299', imgs:['stan2.jpg','stan3.jpg','stan4.jpg','stan5.jpg','stan6.jpg','stan7.jpg'] },
-  { id:4, name:'PASHAMIL HIJAB', price:'250', imgs:['p7.jpg','p2.jpg','p8.jpg','p3.jpg','p4.jpg','p5.jpg'] },
-  { id:5, name:'MILT HIJAB',     price:'150', imgs:['c1.jpg','c2.jpg','c4.jpg','c3.jpg','c5.jpg','c6.jpg'] },
-  { id:6, name:'TIGER HIJAB',    price:'200', imgs:['d1.jpg','d2.jpg','d3.jpg','d5.jpg','d7.jpg'] },
+// Default products — used only for seeding the database on first run
+const DEFAULT_PRODUCTS = [
+  { name:'Chiffon hijab with attached inner cap', price:120, images:['jel8.jpg','jel3.jpg','jel4.jpg','jel5.jpg','jel6.jpg','jel7.jpg'] },
+  { name:'FLOWERS HIJAB',  price:180, images:['m2.jpg','m3.jpg','m4.jpg','m5.jpg','m6.jpg','m7.jpg'] },
+  { name:'STAN HIJAB',     price:299, images:['stan2.jpg','stan3.jpg','stan4.jpg','stan5.jpg','stan6.jpg','stan7.jpg'] },
+  { name:'PASHAMIL HIJAB', price:250, images:['p7.jpg','p2.jpg','p8.jpg','p3.jpg','p4.jpg','p5.jpg'] },
+  { name:'MILT HIJAB',     price:150, images:['c1.jpg','c2.jpg','c4.jpg','c3.jpg','c5.jpg','c6.jpg'] },
+  { name:'TIGER HIJAB',    price:200, images:['d1.jpg','d2.jpg','d3.jpg','d5.jpg','d7.jpg'] },
 ];
+
+// Seed default products into DB if it's empty (runs once on page load)
+async function seedDefaultProducts() {
+  try {
+    const data = await apiRequest('/products');
+    if (data.products && data.products.length > 0) return; // already have products
+    const token = getToken();
+    if (!token) return; // need admin token to seed
+    for (const p of DEFAULT_PRODUCTS) {
+      await apiRequest('/products', {
+        method: 'POST',
+        body: JSON.stringify({ ...p, isBestSeller: false })
+      });
+    }
+    console.log('✅ Default products seeded');
+  } catch (e) {
+    console.log('Seed skipped:', e.message);
+  }
+}
 
 /* ═══════════════════════════════════════════
    Hamburger Menu
@@ -99,39 +119,33 @@ function scrollToContact() {
 async function buildNewCollection() {
   try {
     const data = await apiRequest('/products');
-    if (data.products && data.products.length > 0) {
-      const apiProducts = data.products.map(p => ({
-        id: p._id || p.id,
-        name: p.name,
-        price: p.price.toString(),
-        imgs: p.images
-      }));
-      renderProducts(apiProducts);
-      return;
-    }
+    const apiProducts = (data.products || []).map(p => ({
+      id: p._id || p.id,
+      name: p.name,
+      price: p.price.toString(),
+      imgs: p.images
+    }));
+    renderProducts(apiProducts);
   } catch (e) {
-    console.log('API products failed, using local data:', e.message);
+    console.log('API products failed:', e.message);
+    renderProducts([]);
   }
-  renderProducts(allProducts);
 }
 
 async function buildBestSellers() {
   try {
     const data = await apiRequest('/products/bestsellers/list');
-    if (data.products && data.products.length > 0) {
-      const apiProducts = data.products.map(p => ({
-        id: p._id || p.id,
-        name: p.name,
-        price: p.price.toString(),
-        imgs: p.images
-      }));
-      renderBestSellers(apiProducts);
-      return;
-    }
+    const apiProducts = (data.products || []).map(p => ({
+      id: p._id || p.id,
+      name: p.name,
+      price: p.price.toString(),
+      imgs: p.images
+    }));
+    renderBestSellers(apiProducts);
   } catch (e) {
-    console.log('API bestsellers failed, using local data:', e.message);
+    console.log('API bestsellers failed:', e.message);
+    renderBestSellers([]);
   }
-  renderBestSellers(allProducts.slice(0, 3));
 }
 
 function renderBestSellers(products) {
@@ -174,8 +188,11 @@ function renderProducts(products) {
   });
 }
 
-buildNewCollection();
-buildBestSellers();
+// On page load: try to seed defaults if DB is empty
+seedDefaultProducts().then(() => {
+  buildNewCollection();
+  buildBestSellers();
+});
 
 /* ═══════════════════════════════════════════
    Search
@@ -884,29 +901,13 @@ async function renderAdminProductsList() {
   }
 }
 
-// ── Refresh store products from local storage ──
+// ── Refresh store products ───────────────────
 function refreshAllProductsData() {
-  const localProds = getLocalProducts();
-  if (localProds.length > 0) {
-    // override allProducts with local ones
-    allProducts.length = 0;
-    localProds.forEach(p => allProducts.push(p));
-  }
   buildNewCollection();
   buildBestSellers();
 }
 
-// ── Override tab switch to load products ────
-// On page load, merge local products into allProducts
-(function initLocalProducts() {
-  const localProds = getLocalProducts();
-  if (localProds.length > 0) {
-    allProducts.length = 0;
-    localProds.forEach(p => allProducts.push(p));
-    buildNewCollection();
-    buildBestSellers();
-  }
-})();
+
 
 /* ═══════════════════════════════════════════
    ANIMATIONS & SCROLL EFFECTS
