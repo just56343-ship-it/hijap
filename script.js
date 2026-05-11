@@ -49,12 +49,12 @@ async function apiRequest(endpoint, options = {}) {
    ═══════════════════════════════════════════ */
 // Default products — used only for seeding the database on first run
 const DEFAULT_PRODUCTS = [
-  { name:'Chiffon hijab with attached inner cap', price:120, images:['jel8.jpg','jel3.jpg','jel4.jpg','jel5.jpg','jel6.jpg','jel7.jpg'] },
-  { name:'FLOWERS HIJAB',  price:180, images:['m2.jpg','m3.jpg','m4.jpg','m5.jpg','m6.jpg','m7.jpg'] },
-  { name:'STAN HIJAB',     price:299, images:['stan2.jpg','stan3.jpg','stan4.jpg','stan5.jpg','stan6.jpg','stan7.jpg'] },
-  { name:'PASHAMIL HIJAB', price:250, images:['p7.jpg','p2.jpg','p8.jpg','p3.jpg','p4.jpg','p5.jpg'] },
-  { name:'MILT HIJAB',     price:150, images:['c1.jpg','c2.jpg','c4.jpg','c3.jpg','c5.jpg','c6.jpg'] },
-  { name:'TIGER HIJAB',    price:200, images:['d1.jpg','d2.jpg','d3.jpg','d5.jpg','d7.jpg'] },
+  { name:'Chiffon hijab with attached inner cap', price:120, images:['jel8.jpg','jel3.jpg','jel4.jpg','jel5.jpg','jel6.jpg','jel7.jpg'], isBestSeller:true },
+  { name:'FLOWERS HIJAB',  price:180, images:['m2.jpg','m3.jpg','m4.jpg','m5.jpg','m6.jpg','m7.jpg'], isBestSeller:true },
+  { name:'STAN HIJAB',     price:299, images:['stan2.jpg','stan3.jpg','stan4.jpg','stan5.jpg','stan6.jpg','stan7.jpg'], isBestSeller:true },
+  { name:'PASHAMIL HIJAB', price:250, images:['p7.jpg','p2.jpg','p8.jpg','p3.jpg','p4.jpg','p5.jpg'], isBestSeller:false },
+  { name:'MILT HIJAB',     price:150, images:['c1.jpg','c2.jpg','c4.jpg','c3.jpg','c5.jpg','c6.jpg'], isBestSeller:false },
+  { name:'TIGER HIJAB',    price:200, images:['d1.jpg','d2.jpg','d3.jpg','d5.jpg','d7.jpg'], isBestSeller:false },
 ];
 
 // Seed default products into DB if it's empty (runs once on page load)
@@ -67,7 +67,7 @@ async function seedDefaultProducts() {
     for (const p of DEFAULT_PRODUCTS) {
       await apiRequest('/products', {
         method: 'POST',
-        body: JSON.stringify({ ...p, isBestSeller: false })
+        body: JSON.stringify(p)
       });
     }
     console.log('✅ Default products seeded');
@@ -854,6 +854,20 @@ async function addProduct() {
   }
 
 
+// ── Toggle Best Seller ───────────────────────
+async function toggleBestSeller(id, current) {
+  try {
+    await apiRequest('/products/' + id, {
+      method: 'PUT',
+      body: JSON.stringify({ isBestSeller: !current })
+    });
+    renderAdminProductsList();
+    buildBestSellers();
+  } catch (e) {
+    alert('❌ فشل: ' + e.message);
+  }
+}
+
 // ── Delete Product ───────────────────────────
 async function deleteProduct(id) {
   if (!confirm('Are you sure you want to delete this product?')) return;
@@ -891,6 +905,12 @@ async function renderAdminProductsList() {
             <p class="admin-product-card-name">${p.name}</p>
             <p class="admin-product-card-price">${p.price} EG</p>
             <p class="admin-product-card-imgs">📸 ${p.images?.length || 0} image(s)</p>
+            <button
+              class="admin-product-bs-btn"
+              style="background:${p.isBestSeller ? '#fff3cd' : '#f5f0eb'};color:${p.isBestSeller ? '#856404' : '#9e8e82'};border:1px solid ${p.isBestSeller ? '#ffc107' : '#e0d8d2'};"
+              onclick="toggleBestSeller('${p.id}', ${p.isBestSeller})">
+              ${p.isBestSeller ? '⭐ Best Seller' : '☆ Set as Best Seller'}
+            </button>
             <button class="admin-product-delete-btn" onclick="deleteProduct('${p.id}')">🗑️ Delete</button>
           </div>
         </div>

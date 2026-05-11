@@ -183,6 +183,22 @@ app.post('/api/products', authMiddleware, adminMiddleware, (req, res) => {
   }
 });
 
+app.put('/api/products/:id', authMiddleware, adminMiddleware, (req, res) => {
+  try {
+    const db = readDB();
+    const product = db.products?.[req.params.id];
+    if (!product) return res.status(404).json({ success: false, message: 'Product not found' });
+    const { name, price, isBestSeller } = req.body;
+    if (name !== undefined) product.name = name;
+    if (price !== undefined) product.price = Number(price);
+    if (isBestSeller !== undefined) product.isBestSeller = isBestSeller;
+    writeDB(db);
+    return res.json({ success: true, product });
+  } catch (e) {
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
 app.delete('/api/products/:id', authMiddleware, adminMiddleware, (req, res) => {
   try {
     const db = readDB();
