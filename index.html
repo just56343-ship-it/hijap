@@ -779,7 +779,10 @@ loginUser = function(user) {
   <div class="admin-nav-bar">
     <div class="admin-logo">⚙️ Haj Admin</div>
     <div class="admin-greeting" id="admin-greeting">Welcome, Admin</div>
-    <button class="admin-logout-btn" onclick="adminLogout()">Logout</button>
+    <div style="display:flex;gap:12px;">
+      <button class="admin-logout-btn" onclick="showPage('main')">← Back to Home</button>
+      <button class="admin-logout-btn" onclick="adminLogout()">Logout</button>
+    </div>
   </div>
 
   <!-- Admin Login Screen -->
