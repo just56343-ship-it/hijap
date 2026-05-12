@@ -689,7 +689,7 @@ function renderAdminUsers(users) {
   container.innerHTML = `
     <table>
       <thead>
-        <tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Orders</th><th>Joined</th></tr>
+        <tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Address</th><th>Role</th><th>Orders</th><th>Joined</th></tr>
       </thead>
       <tbody>
         ${users.map(u => `
@@ -697,6 +697,8 @@ function renderAdminUsers(users) {
             <td>${u.id}</td>
             <td>${u.name}</td>
             <td>${u.email}</td>
+            <td>${u.phone || '-'}</td>
+            <td>${u.address || '-'}</td>
             <td><span class="abadge abadge-${u.role || 'user'}">${u.role || 'user'}</span></td>
             <td>${u.ordersCount || 0}</td>
             <td>${u.createdAt ? new Date(u.createdAt).toLocaleDateString() : 'N/A'}</td>
