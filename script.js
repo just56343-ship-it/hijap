@@ -1,6 +1,10 @@
-/* ═══════════════════════════════════════════
-   API URL — Railway Production
-   ═══════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   HAJ E-COMMERCE JAVASCRIPT
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════════════════════════
+   1. API CONFIGURATION
+   ═══════════════════════════════════════════════════════════════ */
 const API_URL = 'https://hijap-production.up.railway.app';
 
 function getToken() {
@@ -44,20 +48,26 @@ async function apiRequest(endpoint, options = {}) {
   }
 }
 
-/* ═══════════════════════════════════════════
-   بيانات المنتجات (Fallback)
-   ═══════════════════════════════════════════ */
-// Default products — used only for seeding the database on first run
+/* ═══════════════════════════════════════════════════════════════
+   2. DEFAULT PRODUCTS (Fallback Data)
+   ═══════════════════════════════════════════════════════════════ */
 const DEFAULT_PRODUCTS = [
+  /* ═══════════════════════════════════════════════════════════════
+     ORIGINAL COLLECTION (6 products)
+     ═══════════════════════════════════════════════════════════════ */
   { name:'Chiffon hijab with attached inner cap', price:120, images:['jel8.jpg','jel3.jpg','jel4.jpg','jel5.jpg','jel6.jpg','jel7.jpg'], isBestSeller:true },
   { name:'FLOWERS HIJAB',  price:180, images:['m2.jpg','m3.jpg','m4.jpg','m5.jpg','m6.jpg','m7.jpg'], isBestSeller:true },
   { name:'STAN HIJAB',     price:299, images:['stan2.jpg','stan3.jpg','stan4.jpg','stan5.jpg','stan6.jpg','stan7.jpg'], isBestSeller:true },
   { name:'PASHAMIL HIJAB', price:250, images:['p7.jpg','p2.jpg','p8.jpg','p3.jpg','p4.jpg','p5.jpg'], isBestSeller:false },
   { name:'MILT HIJAB',     price:150, images:['c1.jpg','c2.jpg','c4.jpg','c3.jpg','c5.jpg','c6.jpg'], isBestSeller:false },
   { name:'TIGER HIJAB',    price:200, images:['d1.jpg','d2.jpg','d3.jpg','d5.jpg','d7.jpg'], isBestSeller:false },
-];
+  { name:'HALAA HIJAB',    price:220, images:['halaa (2).jpeg','halaa (3).jpeg','halaa (4).jpeg','halaa (5).jpeg','halaa (6).jpeg','halaa (7).jpeg','halaa (8).jpeg','halaa (9).jpeg'], isBestSeller:true },
+  { name:'SELVII HIJAB',   price:240, images:['selvii (1).jpeg','selvii (2).jpeg','selvii (3).jpeg','selvii (4).jpeg','selvii (5).jpeg','selvii (6).jpeg','selvii (7).jpeg','selvii (8).jpeg'], isBestSeller:true },
+  { name:'AYAA HIJAB',     price:210, images:['lilo1.jpeg','lilo1 (2).jpeg','lilo1 (3).jpeg','lilo1 (4).jpeg','lilo1 (5).jpeg','lilo1 (6).jpeg','lilo1 (7).jpeg','lilo1 (8).jpeg'], isBestSeller:true },
+  { name:'JANAA HIJAB', price:230, images:['tiger (1).jpeg','tiger (2).jpeg','tiger (3).jpeg','tiger (4).jpeg','tiger (5).jpeg','tiger (6).jpeg','tiger (7).jpeg','tiger (8).jpeg','tiger (9).jpeg','tiger (10).jpeg'], isBestSeller:true },
+]
 
-// Seed default products into DB if it's empty (runs once on page load)
+/* Seed default products into DB if empty (runs once on page load) */
 async function seedDefaultProducts() {
   try {
     const data = await apiRequest('/products');
@@ -76,9 +86,9 @@ async function seedDefaultProducts() {
   }
 }
 
-/* ═══════════════════════════════════════════
-   Hamburger Menu
-   ═══════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   3. NAVIGATION & MENU
+   ═══════════════════════════════════════════════════════════════ */
 function toggleMenu() {
   const navLinks = document.getElementById('nav-links');
   if (navLinks) navLinks.classList.toggle('open');
@@ -89,9 +99,7 @@ function closeMenu() {
   if (navLinks) navLinks.classList.remove('open');
 }
 
-/* ═══════════════════════════════════════════
-   Scroll Helpers
-   ═══════════════════════════════════════════ */
+/* Scroll to sections */
 function scrollToHome() {
   closeMenu();
   const el = document.getElementById('home');
@@ -113,9 +121,40 @@ function scrollToContact() {
   if (el) el.scrollIntoView({ behavior: 'smooth' });
 }
 
-/* ═══════════════════════════════════════════
-   بناء الصفحات
-   ═══════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   4. PAGE NAVIGATION (Show/Hide Pages)
+   ═══════════════════════════════════════════════════════════════ */
+function showPage(page) {
+  ['main-page','checkout-page','new-collection-page','account-page','success-page']
+    .forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+  const map = {
+    'main':           'main-page',
+    'checkout':       'checkout-page',
+    'new-collection': 'new-collection-page',
+    'account':        'account-page',
+    'success':        'success-page'
+  };
+  const target = document.getElementById(map[page]);
+  if (target) target.style.display = 'block';
+  window.scrollTo(0, 0);
+  closeMenu();
+
+  if (page === 'new-collection') {
+    buildNewCollection();
+  }
+}
+
+/* Go back to main page */
+function goBack() {
+  showPage('main');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   5. PRODUCT DISPLAY (New Collection & Best Sellers)
+   ═══════════════════════════════════════════════════════════════ */
 async function buildNewCollection() {
   try {
     const data = await apiRequest('/products');
@@ -188,15 +227,25 @@ function renderProducts(products) {
   });
 }
 
-// On page load: try to seed defaults if DB is empty
-seedDefaultProducts().then(() => {
-  buildNewCollection();
-  buildBestSellers();
-});
+/* Change main image when clicking thumbnail */
+function changeMainImg(productId, thumbEl) {
+  const imgEl = document.getElementById('img-' + productId);
+  if (!imgEl || !thumbEl) return;
+  imgEl.classList.add('fade');
+  setTimeout(() => {
+    imgEl.src = thumbEl.src;
+    imgEl.classList.remove('fade');
+  }, 200);
+  const card = thumbEl.closest('.nc-card');
+  if (card) {
+    card.querySelectorAll('.nc-thumb').forEach(t => t.classList.remove('active'));
+  }
+  thumbEl.classList.add('active');
+}
 
-/* ═══════════════════════════════════════════
-   Search
-   ═══════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   6. SEARCH FUNCTIONALITY
+   ═══════════════════════════════════════════════════════════════ */
 function handleSearch(query) {
   const q = query.toLowerCase().trim();
 
@@ -211,33 +260,44 @@ function handleSearch(query) {
     return;
   }
 
-  const results = allProducts.filter(p =>
-    p.name.toLowerCase().includes(q)
-  );
-
+  // Filter from all products (we need to get them first)
+  // For now, we'll fetch and filter
   showPage('new-collection');
 
-  if (results.length > 0) {
-    renderProducts(results);
-  } else {
-    const container = document.getElementById('nc-products-container');
-    if (container) {
-      container.innerHTML = `
-        <div style="text-align:center;padding:80px 20px;color:#9e8e82;">
-          <p style="font-size:48px;margin-bottom:16px;">🔍</p>
-          <p style="font-size:18px;font-family:'Playfair Display',serif;color:#3a2e27;margin-bottom:8px;">
-            No results for "${query}"
-          </p>
-          <p style="font-size:13px;">Try: Chiffon · Flowers · Stan · Pashamil · Milt · Tiger</p>
-          <a onclick="clearSearch()"
-             style="display:inline-block;margin-top:20px;background:#3a2e27;color:#fff;
-                    padding:10px 28px;border-radius:20px;cursor:pointer;font-size:13px;">
-            Show All Products
-          </a>
-        </div>
-      `;
+  // Simple client-side filter after fetching
+  apiRequest('/products').then(data => {
+    const allProducts = (data.products || []).map(p => ({
+      id: p._id || p.id,
+      name: p.name,
+      price: p.price.toString(),
+      imgs: p.images
+    }));
+    const results = allProducts.filter(p => p.name.toLowerCase().includes(q));
+
+    if (results.length > 0) {
+      renderProducts(results);
+    } else {
+      const container = document.getElementById('nc-products-container');
+      if (container) {
+        container.innerHTML = `
+          <div style="text-align:center;padding:80px 20px;color:#9e8e82;">
+            <p style="font-size:48px;margin-bottom:16px;">🔍</p>
+            <p style="font-size:18px;font-family:'Playfair Display',serif;color:#3a2e27;margin-bottom:8px;">
+              No results for "${query}"
+            </p>
+            <p style="font-size:13px;">Try: Chiffon · Flowers · Stan · Pashamil · Milt · Tiger</p>
+            <a onclick="clearSearch()"
+               style="display:inline-block;margin-top:20px;background:#3a2e27;color:#fff;
+                      padding:10px 28px;border-radius:20px;cursor:pointer;font-size:13px;">
+              Show All Products
+            </a>
+          </div>
+        `;
+      }
     }
-  }
+  }).catch(() => {
+    renderProducts([]);
+  });
 }
 
 function clearSearch() {
@@ -248,41 +308,14 @@ function clearSearch() {
   buildNewCollection();
 }
 
-/* ═══════════════════════════════════════════
-   Navigation
-   ═══════════════════════════════════════════ */
-function showPage(page) {
-  ['main-page','checkout-page','new-collection-page','account-page','success-page']
-    .forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.style.display = 'none';
-    });
-  const map = {
-    'main':           'main-page',
-    'checkout':       'checkout-page',
-    'new-collection': 'new-collection-page',
-    'account':        'account-page',
-    'success':        'success-page'
-  };
-  const target = document.getElementById(map[page]);
-  if (target) target.style.display = 'block';
-  window.scrollTo(0, 0);
-  closeMenu();
-
-  if (page === 'new-collection') {
-    buildNewCollection();
-  }
-}
-
-/* ═══════════════════════════════════════════
-   AUTH
-   ═══════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   7. AUTHENTICATION (Login / Signup)
+   ═══════════════════════════════════════════════════════════════ */
 let currentUser = null;
 
 function openAuth() {
   const el = document.getElementById('auth-overlay');
   if (el) el.style.display = 'flex';
-  // دايماً افتح على تاب Login
   switchTab('login');
 }
 
@@ -306,7 +339,6 @@ function switchTab(tab) {
   if (tabLogin) tabLogin.classList.toggle('active', tab === 'login');
   if (tabSignup) tabSignup.classList.toggle('active', tab === 'signup');
 
-  // امسح الأخطاء لما بنبدل تاب
   const loginErr = document.getElementById('login-error');
   const signupErr = document.getElementById('signup-error');
   if (loginErr) loginErr.innerText = '';
@@ -329,7 +361,6 @@ async function signup() {
     return;
   }
 
-  // Loading state
   if (btn) { btn.innerText = 'Creating...'; btn.disabled = true; }
 
   try {
@@ -360,7 +391,6 @@ async function login() {
     return;
   }
 
-  // Loading state
   if (btn) { btn.innerText = 'Logging in...'; btn.disabled = true; }
 
   try {
@@ -395,7 +425,7 @@ function loginUser(user) {
   const savedAddr = document.getElementById('saved-address');
   if (savedAddr && user.address) savedAddr.value = user.address;
 
-  // اظهر زرار Admin لو الuser ادمن
+  // Show admin button if user is admin
   const adminBtn = document.getElementById('admin-nav-btn');
   if (adminBtn) adminBtn.style.display = user.role === 'admin' ? 'block' : 'none';
 }
@@ -408,21 +438,6 @@ function logout() {
   const adminBtn = document.getElementById('admin-nav-btn');
   if (adminBtn) adminBtn.style.display = 'none';
   showPage('main');
-}
-
-function showAdminPage() {
-  // اخفي كل الصفحات
-  ['main-page','checkout-page','new-collection-page','account-page','success-page']
-    .forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.style.display = 'none';
-    });
-  const adminPage = document.getElementById('admin-page');
-  if (adminPage) {
-    adminPage.style.display = 'block';
-    loadAdminDashboard();
-  }
-  window.scrollTo(0, 0);
 }
 
 function handleAccountClick() {
@@ -499,14 +514,15 @@ async function checkAuth() {
   }
 }
 
+/* Check auth on page load */
 checkAuth().catch(err => {
   console.log('Initial auth check failed:', err.message);
   localStorage.removeItem('token');
 });
 
-/* ═══════════════════════════════════════════
-   Cart
-   ═══════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   8. SHOPPING CART
+   ═══════════════════════════════════════════════════════════════ */
 let cart = [];
 
 function updateCart() {
@@ -582,9 +598,9 @@ function closeCart() {
   if (el) el.style.display = 'none';
 }
 
-/* ═══════════════════════════════════════════
-   Checkout
-   ═══════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   9. CHECKOUT & PAYMENT
+   ═══════════════════════════════════════════════════════════════ */
 let selectedPayment = 'cash';
 
 function selectPayment(method) {
@@ -633,10 +649,6 @@ function goToCheckout() {
 
   closeCart();
   showPage('checkout');
-}
-
-function goBack() {
-  showPage('main');
 }
 
 async function submitOrder() {
@@ -698,27 +710,7 @@ async function submitOrder() {
   }
 }
 
-/* ═══════════════════════════════════════════
-   Thumbnails
-   ═══════════════════════════════════════════ */
-function changeMainImg(productId, thumbEl) {
-  const imgEl = document.getElementById('img-' + productId);
-  if (!imgEl || !thumbEl) return;
-  imgEl.classList.add('fade');
-  setTimeout(() => {
-    imgEl.src = thumbEl.src;
-    imgEl.classList.remove('fade');
-  }, 200);
-  const card = thumbEl.closest('.nc-card');
-  if (card) {
-    card.querySelectorAll('.nc-thumb').forEach(t => t.classList.remove('active'));
-  }
-  thumbEl.classList.add('active');
-}
-
-/* ═══════════════════════════════════════════
-   Visa Format Helpers
-   ═══════════════════════════════════════════ */
+/* Visa card format helpers */
 function formatCard(input) {
   if (!input) return;
   let v = input.value.replace(/\D/g, '').substring(0, 16);
@@ -731,13 +723,257 @@ function formatExpiry(input) {
   if (v.length >= 2) v = v.substring(0, 2) + ' / ' + v.substring(2);
   input.value = v;
 }
-/* ═══════════════════════════════════════════
-   ADMIN PRODUCTS MANAGEMENT
-   ═══════════════════════════════════════════ */
 
+/* ═══════════════════════════════════════════════════════════════
+   10. ADMIN DASHBOARD
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Hardcoded admin credentials (for demo) */
+const ADMIN_EMAIL = 'admin@haj.com';
+const ADMIN_PASSWORD = 'admin123';
+let isAdminLoggedIn = false;
+
+function showAdminPage() {
+  // Hide all pages
+  ['main-page','checkout-page','new-collection-page','account-page','success-page','admin-page']
+    .forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+  closeCart();
+  closeAuth();
+
+  const adminPage = document.getElementById('admin-page');
+  if (adminPage) adminPage.style.display = 'block';
+
+  const adminToken = localStorage.getItem('adminToken');
+  if (adminToken === 'admin_session_2025') {
+    showAdminDashboard();
+  } else {
+    showAdminLogin();
+  }
+  window.scrollTo(0,0);
+}
+
+function showAdminLogin() {
+  const loginScreen = document.getElementById('admin-login-screen');
+  const dashboard = document.getElementById('admin-dashboard');
+  if (loginScreen) loginScreen.style.display = 'flex';
+  if (dashboard) dashboard.style.display = 'none';
+}
+
+function showAdminDashboard() {
+  const loginScreen = document.getElementById('admin-login-screen');
+  const dashboard = document.getElementById('admin-dashboard');
+  if (loginScreen) loginScreen.style.display = 'none';
+  if (dashboard) dashboard.style.display = 'block';
+  loadAdminData();
+}
+
+function adminLogin() {
+  const email = document.getElementById('admin-email').value.trim();
+  const password = document.getElementById('admin-password').value;
+  const errorEl = document.getElementById('admin-login-error');
+
+  if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+    localStorage.setItem('adminToken', 'admin_session_2025');
+    isAdminLoggedIn = true;
+    if (errorEl) errorEl.innerText = '';
+    showAdminDashboard();
+  } else {
+    if (errorEl) errorEl.innerText = '❌ Wrong email or password';
+  }
+}
+
+function adminLogout() {
+  localStorage.removeItem('adminToken');
+  isAdminLoggedIn = false;
+  showAdminLogin();
+}
+
+function switchAdminTab(tab) {
+  document.querySelectorAll('.admin-tab-btn').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('.admin-tab-panel').forEach(panel => panel.classList.remove('active'));
+
+  event.target.classList.add('active');
+  const panel = document.getElementById('tab-' + tab);
+  if (panel) panel.classList.add('active');
+
+  if (tab === 'products') {
+    if (typeof renderAdminProductsList === 'function') renderAdminProductsList();
+  }
+}
+
+async function loadAdminData() {
+  try {
+    const statsData = await apiRequest('/admin/stats');
+    if (statsData.stats) {
+      document.getElementById('stat-revenue').innerText = statsData.stats.totalRevenue + ' EG';
+      document.getElementById('stat-orders').innerText = statsData.stats.totalOrders;
+      document.getElementById('stat-users').innerText = statsData.stats.totalUsers;
+      document.getElementById('stat-pending').innerText = statsData.stats.pendingOrders;
+    }
+
+    const ordersData = await apiRequest('/admin/orders');
+    renderAdminOrders(ordersData.orders || []);
+
+    const usersData = await apiRequest('/admin/users');
+    renderAdminUsers(usersData.users || []);
+  } catch (e) {
+    console.log('Admin API failed, showing demo data');
+    showDemoAdminData();
+  }
+}
+
+function showDemoAdminData() {
+  document.getElementById('stat-revenue').innerText = '0 EG';
+  document.getElementById('stat-orders').innerText = '0';
+  document.getElementById('stat-users').innerText = '2';
+  document.getElementById('stat-pending').innerText = '0';
+
+  document.getElementById('admin-orders-table').innerHTML = 
+    '<div class="admin-empty"><p>📦</p><p>No orders yet</p></div>';
+
+  document.getElementById('admin-users-table').innerHTML = `
+    <table>
+      <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Orders</th></tr></thead>
+      <tbody>
+        <tr><td>user_1</td><td>halaa</td><td>jg@gmail.com</td><td><span class="abadge abadge-user">user</span></td><td>0</td></tr>
+        <tr><td>user_2</td><td>halaa</td><td>jgii@gmail.com</td><td><span class="abadge abadge-user">user</span></td><td>0</td></tr>
+      </tbody>
+    </table>
+  `;
+}
+
+function renderAdminOrders(orders) {
+  const container = document.getElementById('admin-orders-table');
+  if (!orders || orders.length === 0) {
+    container.innerHTML = '<div class="admin-empty"><p>📦</p><p>No orders yet</p></div>';
+    return;
+  }
+
+  container.innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>Order #</th><th>Customer</th><th>Phone</th><th>Email</th><th>Address</th><th>Payment</th><th>Items</th><th>Total</th><th>Status</th><th>Date</th><th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${orders.map(o => `
+          <tr>
+            <td>${o.orderNumber || o.id}</td>
+            <td>${o.shippingInfo?.fullName || 'N/A'}</td>
+            <td>${o.shippingInfo?.phone || 'N/A'}</td>
+            <td>${o.shippingInfo?.email || 'N/A'}</td>
+            <td>${o.shippingInfo?.address || 'N/A'}</td>
+            <td>${o.paymentMethod || 'cash'}</td>
+            <td>${o.items ? o.items.map(i => i.name).join(', ') : ''}</td>
+            <td>${o.totalAmount || 0} EG</td>
+            <td><span class="abadge abadge-${o.orderStatus || 'pending'}">${o.orderStatus || 'pending'}</span></td>
+            <td>${o.createdAt ? new Date(o.createdAt).toLocaleDateString() : 'N/A'}</td>
+            <td>
+              <select class="status-select" onchange="updateOrderStatus('${o.id}', this.value)">
+                <option value="pending" ${o.orderStatus === 'pending' ? 'selected' : ''}>Pending</option>
+                <option value="processing" ${o.orderStatus === 'processing' ? 'selected' : ''}>Processing</option>
+                <option value="shipped" ${o.orderStatus === 'shipped' ? 'selected' : ''}>Shipped</option>
+                <option value="delivered" ${o.orderStatus === 'delivered' ? 'selected' : ''}>Delivered</option>
+                <option value="cancelled" ${o.orderStatus === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+              </select>
+            </td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+function renderAdminUsers(users) {
+  const container = document.getElementById('admin-users-table');
+  if (!users || users.length === 0) {
+    container.innerHTML = '<div class="admin-empty"><p>👤</p><p>No users found</p></div>';
+    return;
+  }
+
+  container.innerHTML = `
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Address</th><th>Role</th><th>Orders</th><th>Joined</th></tr>
+      </thead>
+      <tbody>
+        ${users.map(u => `
+          <tr>
+            <td>${u.id}</td>
+            <td>${u.name}</td>
+            <td>${u.email}</td>
+            <td>${u.phone || '-'}</td>
+            <td>${u.address || '-'}</td>
+            <td><span class="abadge abadge-${u.role || 'user'}">${u.role || 'user'}</span></td>
+            <td>${u.ordersCount || 0}</td>
+            <td>${u.createdAt ? new Date(u.createdAt).toLocaleDateString() : 'N/A'}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+async function updateOrderStatus(orderId, status) {
+  try {
+    await apiRequest('/admin/orders/' + orderId + '/status', {
+      method: 'PUT',
+      body: JSON.stringify({ status })
+    });
+    alert('✅ Order status updated to: ' + status);
+    loadAdminData();
+  } catch (e) {
+    alert('❌ Failed to update status: ' + e.message);
+  }
+}
+
+async function adminSeedProducts() {
+  const btn = document.getElementById('seed-btn');
+  const existing = await apiRequest('/products').catch(() => ({ products: [] }));
+  if (existing.products && existing.products.length > 0) {
+    if (!confirm(`There are ${existing.products.length} products already. Add default products on top?`)) return;
+  }
+  if (btn) { btn.innerText = '⏳ Loading...'; btn.disabled = true; }
+  try {
+    for (const p of DEFAULT_PRODUCTS) {
+      await apiRequest('/products', {
+        method: 'POST',
+        body: JSON.stringify({ ...p, isBestSeller: false })
+      });
+    }
+    await renderAdminProductsList();
+    buildNewCollection();
+    buildBestSellers();
+    if (btn) { btn.innerText = '✅ Done!'; btn.style.background = '#c8e6c9'; }
+    setTimeout(() => {
+      if (btn) { btn.innerText = '🌱 Load Default Products'; btn.style.background = ''; btn.disabled = false; }
+    }, 2000);
+  } catch (e) {
+    alert('❌ Failed: ' + e.message);
+    if (btn) { btn.innerText = '🌱 Load Default Products'; btn.disabled = false; }
+  }
+}
+
+/* Check admin status on page load */
+function checkAdminStatus() {
+  const adminToken = localStorage.getItem('adminToken');
+  const adminBtn = document.getElementById('admin-nav-btn');
+
+  if (adminToken === 'admin_session_2025' && adminBtn) {
+    adminBtn.style.display = 'block';
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   11. ADMIN PRODUCT MANAGEMENT
+   ═══════════════════════════════════════════════════════════════ */
 let productImages = []; // base64 images for new product
 
-// ── Drag & Drop ──────────────────────────────
+/* Drag & Drop Setup */
 (function setupDragDrop() {
   document.addEventListener('DOMContentLoaded', () => {
     const dropArea = document.getElementById('prod-img-drop');
@@ -788,18 +1024,7 @@ function removeProductImage(index) {
   renderProductPreviews();
 }
 
-// ── Load/Save Products ───────────────────────
-function getLocalProducts() {
-  try {
-    return JSON.parse(localStorage.getItem('haj_products') || '[]');
-  } catch { return []; }
-}
-
-function saveLocalProducts(products) {
-  localStorage.setItem('haj_products', JSON.stringify(products));
-}
-
-// ── Add Product ──────────────────────────────
+/* Add New Product */
 async function addProduct() {
   const nameEl = document.getElementById('prod-name');
   const priceEl = document.getElementById('prod-price');
@@ -808,53 +1033,40 @@ async function addProduct() {
   const name = nameEl?.value.trim();
   const price = priceEl?.value.trim();
 
-  if (!name) { errEl.innerText = '❌ Enter product name'; return; }
-  if (!price || isNaN(price) || Number(price) <= 0) { errEl.innerText = '❌ Enter valid price'; return; }
-  if (productImages.length === 0) { errEl.innerText = '❌ Add at least one image'; return; }
-  errEl.innerText = '';
+  if (!name) { if (errEl) errEl.innerText = '❌ Enter product name'; return; }
+  if (!price || isNaN(price) || Number(price) <= 0) { if (errEl) errEl.innerText = '❌ Enter valid price'; return; }
+  if (productImages.length === 0) { if (errEl) errEl.innerText = '❌ Add at least one image'; return; }
+  if (errEl) errEl.innerText = '';
 
   try {
     await apiRequest('/products', {
       method: 'POST',
-     body: JSON.stringify({ name, price, images: productImages, isBestSeller: false })
+      body: JSON.stringify({ name, price: Number(price), images: productImages, isBestSeller: false })
     });
 
-    nameEl.value = '';
-    priceEl.value = '';
+    // Reset form
+    if (nameEl) nameEl.value = '';
+    if (priceEl) priceEl.value = '';
     productImages = [];
     renderProductPreviews();
+
+    // Refresh lists
     renderAdminProductsList();
     buildNewCollection();
     buildBestSellers();
 
-    errEl.style.color = '#5a9e6f';
-    errEl.innerText = '✅ Product added!';
-    setTimeout(() => { errEl.innerText = ''; errEl.style.color = '#e07070'; }, 2000);
+    // Success feedback
+    if (errEl) {
+      errEl.style.color = '#5a9e6f';
+      errEl.innerText = '✅ Product added!';
+      setTimeout(() => { errEl.innerText = ''; errEl.style.color = '#e07070'; }, 2000);
+    }
   } catch (e) {
-    errEl.innerText = '❌ ' + e.message;
+    if (errEl) errEl.innerText = '❌ ' + e.message;
   }
 }
 
-  // Reset form
-  if (nameEl) nameEl.value = '';
-  if (priceEl) priceEl.value = '';
-  productImages = [];
-  renderProductPreviews();
-
-  // Refresh product list & store data
-  renderAdminProductsList();
-  refreshAllProductsData();
-
-  // Success feedback
-  const btn = document.querySelector('#tab-products .admin-login-btn');
-  if (btn) {
-    btn.innerText = '✅ Product Added!';
-    btn.style.background = '#5a9e6f';
-    setTimeout(() => { btn.innerText = '✅ Add Product'; btn.style.background = '#3a2e27'; }, 2000);
-  }
-
-
-// ── Toggle Best Seller ───────────────────────
+/* Toggle Best Seller Status */
 async function toggleBestSeller(id, current) {
   try {
     await apiRequest('/products/' + id, {
@@ -864,11 +1076,11 @@ async function toggleBestSeller(id, current) {
     renderAdminProductsList();
     buildBestSellers();
   } catch (e) {
-    alert('❌ فشل: ' + e.message);
+    alert('❌ Failed: ' + e.message);
   }
 }
 
-// ── Delete Product ───────────────────────────
+/* Delete Product */
 async function deleteProduct(id) {
   if (!confirm('Are you sure you want to delete this product?')) return;
   try {
@@ -881,7 +1093,7 @@ async function deleteProduct(id) {
   }
 }
 
-// ── Render Admin Products List ───────────────
+/* Render Admin Products List */
 async function renderAdminProductsList() {
   const container = document.getElementById('admin-products-list');
   const countEl = document.getElementById('products-count');
@@ -921,19 +1133,11 @@ async function renderAdminProductsList() {
   }
 }
 
-// ── Refresh store products ───────────────────
-function refreshAllProductsData() {
-  buildNewCollection();
-  buildBestSellers();
-}
+/* ═══════════════════════════════════════════════════════════════
+   12. ANIMATIONS & SCROLL EFFECTS
+   ═══════════════════════════════════════════════════════════════ */
 
-
-
-/* ═══════════════════════════════════════════
-   ANIMATIONS & SCROLL EFFECTS
-   ═══════════════════════════════════════════ */
-
-// ── Nav shrink on scroll ──────────────────
+/* Nav shrink on scroll */
 window.addEventListener('scroll', () => {
   const nav = document.querySelector('nav');
   if (nav) {
@@ -942,7 +1146,7 @@ window.addEventListener('scroll', () => {
   }
 });
 
-// ── Scroll Reveal ─────────────────────────
+/* Scroll Reveal Animation */
 function initReveal() {
   const elements = document.querySelectorAll(
     '.about, .products h2, .products-sub, .nc-hero, .footer-top h2'
@@ -963,7 +1167,7 @@ function initReveal() {
 
 document.addEventListener('DOMContentLoaded', initReveal);
 
-// ── Cart count pop animation ──────────────
+/* Cart count pop animation */
 const _origUpdateCart = updateCart;
 updateCart = function() {
   _origUpdateCart();
@@ -974,3 +1178,11 @@ updateCart = function() {
     count.classList.add('pop');
   }
 };
+
+/* ═══════════════════════════════════════════════════════════════
+   13. INITIALIZATION (Page Load)
+   ═══════════════════════════════════════════════════════════════ */
+seedDefaultProducts().then(() => {
+  buildNewCollection();
+  buildBestSellers();
+});
