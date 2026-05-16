@@ -55,7 +55,6 @@ const DEFAULT_PRODUCTS = [
   /* ═══════════════════════════════════════════════════════════════
      ORIGINAL COLLECTION (6 products)
      ═══════════════════════════════════════════════════════════════ */
-  { id:'1', name:'Chiffon hijab with attached inner cap', price:120, images:['jel8.jpg','jel3.jpg','jel4.jpg','jel5.jpg','jel6.jpg','jel7.jpg'], isBestSeller:true },
   { id:'2', name:'FLOWERS HIJAB',  price:180, images:['m2.jpg','m3.jpg','m4.jpg','m5.jpg','m6.jpg','m7.jpg'], isBestSeller:true },
   { id:'3', name:'STAN HIJAB',     price:299, images:['stan2.jpg','stan3.jpg','stan4.jpg','stan5.jpg','stan6.jpg','stan7.jpg'], isBestSeller:true },
   { id:'4', name:'PASHAMIL HIJAB', price:250, images:['p7.jpg','p2.jpg','p8.jpg','p3.jpg','p4.jpg','p5.jpg'], isBestSeller:false },
@@ -65,6 +64,7 @@ const DEFAULT_PRODUCTS = [
   { id:'8', name:'SELVII HIJAB',   price:240, images:['selvii (3).jpg','selvii (4).jpg','selvii (5).jpg','selvii (6).jpg','selvii (7).jpg','selvii (8).jpg'], isBestSeller:false },
   { id:'9', name:'AYAA HIJAB',     price:210, images:['lilo1.jpg','lilo1 (2).jpg','lilo1 (3).jpg','lilo1 (4).jpg','lilo1 (5).jpg','lilo1 (6).jpg','lilo1 (7).jpg','lilo1 (8).jpg'], isBestSeller:false },
   { id:'10', name:'JANAA HIJAB', price:230, images:['tiger (1).jpg','tiger (2).jpg','tiger (3).jpg','tiger (4).jpg','tiger (5).jpg','tiger (6).jpg','tiger (7).jpg','tiger (8).jpg','tiger (9).jpg','tiger (10).jpg'], isBestSeller:true },
+  { id:'1', name:'Chiffon hijab with attached inner cap', price:120, images:['jel8.jpg','jel3.jpg','jel4.jpg','jel5.jpg','jel6.jpg','jel7.jpg'], isBestSeller:true }
 ]
 
 /* Seed default products into DB if empty (runs once on page load) */
