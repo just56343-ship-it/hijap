@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Haj Admin Dashboard</title>
+  <meta name="description" content="Haj Admin Dashboard - Manage orders, users, and products."/>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Lato:wght@300;400&display=swap" rel="stylesheet"/>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     ADMIN DASHBOARD PAGE
+     ═══════════════════════════════════════════════════════════════ -->
+
+<!-- Admin Navigation Bar -->
+<div class="admin-nav-bar">
+  <div class="admin-logo">⚙️ Haj Admin</div>
+  <div class="admin-greeting" id="admin-greeting">Welcome, Admin</div>
+  <div style="display:flex;gap:12px;">
+    <a href="index.html" class="admin-logout-btn">← Back to Home</a>
+    <button class="admin-logout-btn" onclick="adminLogout()">Logout</button>
+  </div>
+</div>
+
+<!-- Admin Login Screen -->
+<div class="admin-login-screen" id="admin-login-screen">
+  <div class="admin-login-card">
+    <h2>🔐 Admin Access</h2>
+    <p>Enter your admin credentials to continue</p>
+    <div class="admin-field">
+      <label>Email</label>
+      <input type="email" id="admin-email" placeholder="admin@haj.com" value="admin@haj.com"/>
+    </div>
+    <div class="admin-field">
+      <label>Password</label>
+      <input type="password" id="admin-password" placeholder="Enter password"/>
+    </div>
+    <p class="admin-login-error" id="admin-login-error"></p>
+    <button class="admin-login-btn" onclick="adminLogin()">Login as Admin</button>
+    <p style="text-align:center;margin-top:16px;font-size:12px;color:#9e8e82;">
+      <a href="index.html" style="cursor:pointer;">← Back to Store</a>
+    </p>
+  </div>
+</div>
+
+<!-- Admin Dashboard -->
+<div class="admin-dashboard" id="admin-dashboard">
+  <div class="dash-body">
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">TOTAL REVENUE</div>
+        <div class="stat-value gold" id="stat-revenue">0 EG</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">TOTAL ORDERS</div>
+        <div class="stat-value" id="stat-orders">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">TOTAL USERS</div>
+        <div class="stat-value green" id="stat-users">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">PENDING</div>
+        <div class="stat-value orange" id="stat-pending">0</div>
+      </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="admin-tabs">
+      <button class="admin-tab-btn active" onclick="switchAdminTab('orders')">📦 Orders</button>
+      <button class="admin-tab-btn" onclick="switchAdminTab('users')">👤 Users</button>
+      <button class="admin-tab-btn" onclick="switchAdminTab('products')">🛍️ Products</button>
+    </div>
+
+    <!-- Orders Tab -->
+    <div class="admin-tab-panel active" id="tab-orders">
+      <div class="admin-table-card">
+        <div class="admin-table-header">
+          <h3>All Orders</h3>
+          <button class="admin-refresh-btn" onclick="loadAdminData()">🔄 Refresh</button>
+        </div>
+        <div id="admin-orders-table">
+          <div class="admin-loading">Loading orders...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Users Tab -->
+    <div class="admin-tab-panel" id="tab-users">
+      <div class="admin-table-card">
+        <div class="admin-table-header">
+          <h3>All Users</h3>
+          <button class="admin-refresh-btn" onclick="loadAdminData()">🔄 Refresh</button>
+        </div>
+        <div id="admin-users-table">
+          <div class="admin-loading">Loading users...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Products Tab -->
+    <div class="admin-tab-panel" id="tab-products">
+
+      <!-- Add Product Form -->
+      <div class="admin-table-card" style="margin-bottom:24px;">
+        <div class="admin-table-header">
+          <h3>➕ Add New Product</h3>
+        </div>
+        <div style="padding:24px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+            <div class="admin-field">
+              <label>Product Name *</label>
+              <input type="text" id="prod-name" placeholder="e.g. Chiffon Hijab"/>
+            </div>
+            <div class="admin-field">
+              <label>Price (EG) *</label>
+              <input type="number" id="prod-price" placeholder="e.g. 150"/>
+            </div>
+          </div>
+
+          <!-- Image Upload Area -->
+          <div class="admin-field">
+            <label>Product Images * <span style="font-weight:400;color:#9e8e82;">(يمكنك رفع أكتر من صورة)</span></label>
+            <div class="prod-img-upload-area" id="prod-img-drop" onclick="document.getElementById('prod-img-input').click()">
+              <div class="prod-upload-icon">📁</div>
+              <p class="prod-upload-text">اضغط هنا أو اسحب الصور</p>
+              <p class="prod-upload-sub">PNG, JPG, WEBP مقبولة</p>
+              <input type="file" id="prod-img-input" multiple accept="image/*" style="display:none" onchange="handleProductImages(this)"/>
+            </div>
+            <div id="prod-img-previews" class="prod-img-previews"></div>
+          </div>
+
+          <p id="prod-form-error" style="color:#e07070;font-size:12px;min-height:16px;margin-bottom:8px;"></p>
+          <button class="admin-login-btn" style="width:auto;padding:12px 36px;" onclick="addProduct()">✅ Add Product</button>
+        </div>
+      </div>
+
+      <!-- Products List -->
+      <div class="admin-table-card">
+        <div class="admin-table-header">
+          <h3>📦 All Products</h3>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <span id="products-count" style="font-size:13px;color:#9e8e82;"></span>
+            <button class="admin-refresh-btn" onclick="adminSeedProducts()" id="seed-btn">
+              🌱 Load Default Products
+            </button>
+          </div>
+        </div>
+        <div id="admin-products-list" style="padding:16px;">
+          <div class="admin-loading">Loading products...</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="script.js"></script>
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   ADMIN PAGE INITIALIZATION
+   ═══════════════════════════════════════════════════════════════ */
+(function initAdmin() {
+  const adminToken = localStorage.getItem('adminToken');
+  if (adminToken === 'admin_session_2025') {
+    showAdminDashboard();
+  } else {
+    showAdminLogin();
+  }
+})();
+</script>
+
+</body>
+</html>
