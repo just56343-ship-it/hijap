@@ -55,16 +55,16 @@ const DEFAULT_PRODUCTS = [
   /* ═══════════════════════════════════════════════════════════════
      ORIGINAL COLLECTION (6 products)
      ═══════════════════════════════════════════════════════════════ */
-  { name:'Chiffon hijab with attached inner cap', price:120, images:['jel8.jpg','jel3.jpg','jel4.jpg','jel5.jpg','jel6.jpg','jel7.jpg'], isBestSeller:true },
-  { name:'FLOWERS HIJAB',  price:180, images:['m2.jpg','m3.jpg','m4.jpg','m5.jpg','m6.jpg','m7.jpg'], isBestSeller:true },
-  { name:'STAN HIJAB',     price:299, images:['stan2.jpg','stan3.jpg','stan4.jpg','stan5.jpg','stan6.jpg','stan7.jpg'], isBestSeller:true },
-  { name:'PASHAMIL HIJAB', price:250, images:['p7.jpg','p2.jpg','p8.jpg','p3.jpg','p4.jpg','p5.jpg'], isBestSeller:false },
-  { name:'MILT HIJAB',     price:150, images:['c1.jpg','c2.jpg','c4.jpg','c3.jpg','c5.jpg','c6.jpg'], isBestSeller:false },
-  { name:'TIGER HIJAB',    price:200, images:['d1.jpg','d2.jpg','d3.jpg','d5.jpg','d7.jpg'], isBestSeller:false },
-  { name:'HALAA HIJAB',    price:220, images:['halaa (2).jpeg','halaa (3).jpeg','halaa (4).jpeg','halaa (5).jpeg','halaa (6).jpeg','halaa (7).jpeg','halaa (8).jpeg','halaa (9).jpeg'], isBestSeller:true },
-  { name:'SELVII HIJAB',   price:240, images:['selvii (1).jpeg','selvii (2).jpeg','selvii (3).jpeg','selvii (4).jpeg','selvii (5).jpeg','selvii (6).jpeg','selvii (7).jpeg','selvii (8).jpeg'], isBestSeller:true },
-  { name:'AYAA HIJAB',     price:210, images:['lilo1.jpeg','lilo1 (2).jpeg','lilo1 (3).jpeg','lilo1 (4).jpeg','lilo1 (5).jpeg','lilo1 (6).jpeg','lilo1 (7).jpeg','lilo1 (8).jpeg'], isBestSeller:true },
-  { name:'JANAA HIJAB', price:230, images:['tiger (1).jpeg','tiger (2).jpeg','tiger (3).jpeg','tiger (4).jpeg','tiger (5).jpeg','tiger (6).jpeg','tiger (7).jpeg','tiger (8).jpeg','tiger (9).jpeg','tiger (10).jpeg'], isBestSeller:true },
+  { id:'1', name:'Chiffon hijab with attached inner cap', price:120, images:['jel8.jpg','jel3.jpg','jel4.jpg','jel5.jpg','jel6.jpg','jel7.jpg'], isBestSeller:true },
+  { id:'2', name:'FLOWERS HIJAB',  price:180, images:['m2.jpg','m3.jpg','m4.jpg','m5.jpg','m6.jpg','m7.jpg'], isBestSeller:true },
+  { id:'3', name:'STAN HIJAB',     price:299, images:['stan2.jpg','stan3.jpg','stan4.jpg','stan5.jpg','stan6.jpg','stan7.jpg'], isBestSeller:true },
+  { id:'4', name:'PASHAMIL HIJAB', price:250, images:['p7.jpg','p2.jpg','p8.jpg','p3.jpg','p4.jpg','p5.jpg'], isBestSeller:false },
+  { id:'5', name:'MILT HIJAB',     price:150, images:['c1.jpg','c2.jpg','c4.jpg','c3.jpg','c5.jpg','c6.jpg'], isBestSeller:false },
+  { id:'6', name:'TIGER HIJAB',    price:200, images:['d1.jpg','d2.jpg','d3.jpg','d5.jpg','d7.jpg'], isBestSeller:false },
+  { id:'7', name:'HALAA HIJAB',    price:220, images:['halaa (2).jpg','halaa (3).jpg','halaa (4).jpg','halaa (5).jpg','halaa (6).jpg','halaa (7).jpg','halaa (8).jpg','halaa (9).jpg'], isBestSeller:false },
+  { id:'8', name:'SELVII HIJAB',   price:240, images:['selvii (3).jpg','selvii (4).jpg','selvii (5).jpg','selvii (6).jpg','selvii (7).jpg','selvii (8).jpg'], isBestSeller:false },
+  { id:'9', name:'AYAA HIJAB',     price:210, images:['lilo1.jpg','lilo1 (2).jpg','lilo1 (3).jpg','lilo1 (4).jpg','lilo1 (5).jpg','lilo1 (6).jpg','lilo1 (7).jpg','lilo1 (8).jpg'], isBestSeller:false },
+  { id:'10', name:'JANAA HIJAB', price:230, images:['tiger (1).jpg','tiger (2).jpg','tiger (3).jpg','tiger (4).jpg','tiger (5).jpg','tiger (6).jpg','tiger (7).jpg','tiger (8).jpg','tiger (9).jpg','tiger (10).jpg'], isBestSeller:true },
 ]
 
 /* Seed default products into DB if empty (runs once on page load) */
@@ -162,12 +162,13 @@ async function buildNewCollection() {
       id: p._id || p.id,
       name: p.name,
       price: p.price.toString(),
-      imgs: p.images
+      imgs: (p.images || []).map(img => img.replace(/\.jpeg$/i, '.jpg'))
     }));
-    renderProducts(apiProducts);
+    const products = apiProducts.length > 0 ? apiProducts : DEFAULT_PRODUCTS.map(p => ({...p, imgs: p.images}));
+    renderProducts(products);
   } catch (e) {
     console.log('API products failed:', e.message);
-    renderProducts([]);
+    renderProducts(DEFAULT_PRODUCTS.map(p => ({...p, imgs: p.images})));
   }
 }
 
@@ -178,12 +179,13 @@ async function buildBestSellers() {
       id: p._id || p.id,
       name: p.name,
       price: p.price.toString(),
-      imgs: p.images
+      imgs: (p.images || []).map(img => img.replace(/\.jpeg$/i, '.jpg'))
     }));
-    renderBestSellers(apiProducts);
+    const bestsellers = apiProducts.length > 0 ? apiProducts : DEFAULT_PRODUCTS.filter(p => p.isBestSeller).map(p => ({...p, imgs: p.images}));
+    renderBestSellers(bestsellers);
   } catch (e) {
     console.log('API bestsellers failed:', e.message);
-    renderBestSellers([]);
+    renderBestSellers(DEFAULT_PRODUCTS.filter(p => p.isBestSeller).map(p => ({...p, imgs: p.images})));
   }
 }
 

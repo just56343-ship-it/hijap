@@ -3,36 +3,28 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Haj - Modest Fashion</title>
-  <meta name="description" content="Discover elegant hijabs and modest fashion at Haj. Premium quality, sustainable materials."/>
-
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Lato:wght@300;400&display=swap" rel="stylesheet"/>
-
-  <!-- Styles -->
   <link rel="stylesheet" href="style.css"/>
-<base target="_blank">
+  <title>Haj</title>
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════════════════════════
-     1. AUTH POPUP (Login / Signup Modal)
-     ═══════════════════════════════════════════════════════════════ -->
+<!-- ====================================================
+  AUTH POPUP
+==================================================== -->
 <div class="auth-overlay" id="auth-overlay" onclick="closeAuth()">
   <div class="auth-box" onclick="event.stopPropagation()">
     <button class="auth-close" onclick="closeAuth()">✕</button>
     <div class="auth-tabs">
-      <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Login</button>
-      <button class="auth-tab" id="tab-signup" onclick="switchTab('signup')">Sign Up</button>
+      <button class="auth-tab active" id="tab-login"  onclick="switchTab('login')">Login</button>
+      <button class="auth-tab"        id="tab-signup" onclick="switchTab('signup')">Sign Up</button>
     </div>
     <div id="login-form">
       <h3>Welcome Back 👋</h3>
       <div class="auth-field"><label>Email</label><input type="email" id="login-email" placeholder="you@email.com" onkeydown="if(event.key==='Enter')login()"/></div>
       <div class="auth-field"><label>Password</label><input type="password" id="login-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')login()"/></div>
       <p class="auth-error" id="login-error"></p>
-      <button class="auth-btn" id="login-btn" onclick="login()">Login</button>
+      <button class="auth-btn" onclick="login()">Login</button>
     </div>
     <div id="signup-form" style="display:none;">
       <h3>Create Account ✨</h3>
@@ -40,15 +32,14 @@
       <div class="auth-field"><label>Email</label><input type="email" id="signup-email" placeholder="you@email.com" onkeydown="if(event.key==='Enter')signup()"/></div>
       <div class="auth-field"><label>Password</label><input type="password" id="signup-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')signup()"/></div>
       <p class="auth-error" id="signup-error"></p>
-      <button class="auth-btn" id="signup-btn" onclick="signup()">Create Account</button>
+      <button class="auth-btn" onclick="signup()">Create Account</button>
     </div>
   </div>
 </div>
 
-
-<!-- ═══════════════════════════════════════════════════════════════
-     2. CART POPUP (Shopping Cart)
-     ═══════════════════════════════════════════════════════════════ -->
+<!-- ====================================================
+  CART POPUP
+==================================================== -->
 <div class="cart-overlay" id="cart" onclick="closeCart()">
   <div class="cart-box" onclick="event.stopPropagation()">
     <div class="cart-header">
@@ -65,13 +56,12 @@
   </div>
 </div>
 
-
-<!-- ═══════════════════════════════════════════════════════════════
-     3. ACCOUNT PAGE (User Profile)
-     ═══════════════════════════════════════════════════════════════ -->
+<!-- ====================================================
+  ACCOUNT PAGE
+==================================================== -->
 <div id="account-page" style="display:none;">
   <nav>
-    <div class="logo"><img src="logo.jpg" alt="Haj Logo"/></div>
+    <div class="logo"><img src="logo.jpg" alt="Logo"/></div>
     <a class="back-home-btn" onclick="showPage('main')">← Back to Home</a>
   </nav>
   <div class="account-container">
@@ -99,13 +89,12 @@
   </div>
 </div>
 
-
-<!-- ═══════════════════════════════════════════════════════════════
-     4. CHECKOUT PAGE (Payment & Shipping)
-     ═══════════════════════════════════════════════════════════════ -->
+<!-- ====================================================
+  CHECKOUT PAGE
+==================================================== -->
 <div id="checkout-page" style="display:none;">
   <nav>
-    <div class="logo"><img src="logo.jpg" alt="Haj Logo"/></div>
+    <div class="logo"><img src="logo.jpg" alt="Logo"/></div>
     <button class="back-btn" onclick="goBack()">← Back to Shop</button>
   </nav>
   <div class="checkout-container">
@@ -157,13 +146,12 @@
   </div>
 </div>
 
-
-<!-- ═══════════════════════════════════════════════════════════════
-     5. SUCCESS PAGE (Order Confirmed)
-     ═══════════════════════════════════════════════════════════════ -->
+<!-- ====================================================
+  SUCCESS PAGE
+==================================================== -->
 <div id="success-page" style="display:none;">
   <nav>
-    <div class="logo"><img src="logo.jpg" alt="Haj Logo"/></div>
+    <div class="logo"><img src="logo.jpg" alt="Logo"/></div>
   </nav>
   <div class="success-container">
     <div class="success-icon">✅</div>
@@ -174,15 +162,16 @@
 </div>
 
 
-<!-- ═══════════════════════════════════════════════════════════════
-     6. NEW COLLECTION PAGE
-     ═══════════════════════════════════════════════════════════════ -->
+<!-- ====================================================
+  NEW COLLECTION PAGE
+==================================================== -->
 <div id="new-collection-page" style="display:none;">
   <nav>
-    <div class="logo"><img src="logo.jpg" alt="Haj Logo"/></div>
+    <div class="logo"><img src="logo.jpg" alt="Logo"/></div>
     <div style="display:flex;align-items:center;gap:16px;">
       <div class="search-box">
-        <input type="text" id="search-input-nc" placeholder="Search hijabs..." oninput="handleSearch(this.value)"/>
+        <input type="text" id="search-input-nc" placeholder="Search hijabs..."
+               oninput="handleSearch(this.value)"/>
         <span>🔍</span>
       </div>
       <div class="cart-icon" onclick="openCart()">🛒<span class="cart-count" id="cart-count-nc">0</span></div>
@@ -197,28 +186,21 @@
 
   <section class="nc-products" id="nc-products-container"></section>
 
-  <!-- ═══════════════════════════════════════════════════════════════
-       NEW COLLECTION PLACEHOLDER AREA
-       Add your new hijab images to the folder and update in admin panel
-       Current placeholders: new1.jpg through new12.jpg
-       ═══════════════════════════════════════════════════════════════ -->
-
   <footer class="page-footer">
     <p>© 2025 Haj. All rights reserved. |
-      <a href="https://wa.me/201201325656" target="_blank">WhatsApp Us</a>
+      <a href="https://wa.me/201201325656" onclick="window.open(this.href,'_blank');return false;">WhatsApp Us</a>
     </p>
   </footer>
 </div>
 
 
-<!-- ═══════════════════════════════════════════════════════════════
-     7. MAIN PAGE (Homepage)
-     ═══════════════════════════════════════════════════════════════ -->
+<!-- ====================================================
+  MAIN PAGE
+==================================================== -->
 <div id="main-page">
 
-  <!-- Navigation -->
   <nav>
-    <div class="logo"><img src="logo.jpg" alt="Haj Logo"/></div>
+    <div class="logo"><img src="logo.jpg" alt="Logo"/></div>
     <button class="hamburger" onclick="toggleMenu()" id="hamburger-btn">☰</button>
     <ul class="nav-links" id="nav-links">
       <li><a onclick="scrollToHome()">Home</a></li>
@@ -229,11 +211,14 @@
     </ul>
     <div class="nav-right">
       <div class="search-box">
-        <input type="text" id="search-input" placeholder="Search hijabs..." oninput="handleSearch(this.value)"/>
+        <input type="text" id="search-input" placeholder="Search hijabs..."
+               oninput="handleSearch(this.value)"/>
         <span>🔍</span>
       </div>
       <div id="admin-nav-btn" style="display:none;">
-        <a href="admin.html" class="account-btn" style="background:#3a2e27;color:#c9a87c;">⚙️ Admin</a>
+        <button class="account-btn" style="background:#3a2e27;color:#c9a87c;border:none;cursor:pointer;" onclick="showAdminPage()">
+          ⚙️ Admin
+        </button>
       </div>
       <div class="account-btn" onclick="handleAccountClick()">
         👤 <span id="nav-account-label">Login</span>
@@ -244,7 +229,7 @@
     </div>
   </nav>
 
-  <!-- Hero Section -->
+  <!-- HERO -->
   <section class="hero" id="home">
     <div class="hero-overlay"></div>
     <div class="hero-content">
@@ -257,7 +242,7 @@
     </div>
   </section>
 
-  <!-- About Section -->
+  <!-- ABOUT -->
   <section class="about" id="about">
     <div class="about-text">
       <h2>Made with love in our team</h2>
@@ -273,7 +258,7 @@
     <div class="about-img"><img src="3d8df27e29ffffd4aa1d397bdeea2f8c.jpg" alt="About"/></div>
   </section>
 
-  <!-- Best Sellers Section -->
+  <!-- BEST SELLERS -->
   <section class="products" id="products">
     <h2>Best Sellers</h2>
     <p class="products-sub">Breathable, eco-friendly hijabs that keep you cool and comfortable.</p>
@@ -283,10 +268,10 @@
     </div>
   </section>
 
-  <!-- Footer -->
+  <!-- FOOTER -->
   <footer class="footer" id="contact">
     <div class="footer-top">
-      <div class="footer-logo"><img src="logo.jpg" alt="Haj Logo"/></div>
+      <div class="footer-logo"><img src="logo.jpg" alt="Logo"/></div>
       <h2>DISCOVER THE BEAUTY<br>OF MODERN MODESTY.</h2>
       <div class="footer-tagline">
         <p>Embrace your essence with conscious elegance.</p>
@@ -294,7 +279,7 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <div class="footer-logo-big"><img src="logo.jpg" alt="Haj Logo"/></div>
+      <div class="footer-logo-big"><img src="logo.jpg" alt="Logo"/></div>
       <div class="footer-links">
         <div class="footer-col">
           <h4>SHOP</h4>
@@ -316,7 +301,319 @@
 
 </div>
 
-<!-- Scripts -->
+<!-- ====================================================
+  ADMIN PAGE (MERGED)
+==================================================== -->
+<div id="admin-page" style="display:none;">
+  <div class="admin-nav-bar">
+    <div class="admin-logo">⚙️ Haj Admin</div>
+    <div class="admin-greeting" id="admin-greeting">Welcome, Admin</div>
+    <div style="display:flex;gap:12px;">
+      <button class="admin-logout-btn" onclick="showPage('main')">← Back to Home</button>
+      <button class="admin-logout-btn" onclick="adminLogout()">Logout</button>
+    </div>
+  </div>
+
+  <!-- Admin Login Screen -->
+  <div class="admin-login-screen" id="admin-login-screen">
+    <div class="admin-login-card">
+      <h2>🔐 Admin Access</h2>
+      <p>Enter your admin credentials to continue</p>
+      <div class="admin-field">
+        <label>Email</label>
+        <input type="email" id="admin-email" placeholder="admin@haj.com" value="admin@haj.com"/>
+      </div>
+      <div class="admin-field">
+        <label>Password</label>
+        <input type="password" id="admin-password" placeholder="Enter password"/>
+      </div>
+      <p class="admin-login-error" id="admin-login-error"></p>
+      <button class="admin-login-btn" onclick="adminLogin()">Login as Admin</button>
+      <p style="text-align:center;margin-top:16px;font-size:12px;color:#9e8e82;">
+        <a onclick="showPage('main')" style="cursor:pointer;">← Back to Store</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- Admin Dashboard -->
+  <div class="admin-dashboard" id="admin-dashboard">
+    <div class="dash-body">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">TOTAL REVENUE</div>
+          <div class="stat-value gold" id="stat-revenue">0 EG</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">TOTAL ORDERS</div>
+          <div class="stat-value" id="stat-orders">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">TOTAL USERS</div>
+          <div class="stat-value green" id="stat-users">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">PENDING</div>
+          <div class="stat-value orange" id="stat-pending">0</div>
+        </div>
+      </div>
+
+      <div class="admin-tabs">
+        <button class="admin-tab-btn active" onclick="switchAdminTab('orders')">📦 Orders</button>
+        <button class="admin-tab-btn" onclick="switchAdminTab('users')">👤 Users</button>
+        <button class="admin-tab-btn" onclick="switchAdminTab('products')">🛍️ Products</button>
+      </div>
+
+      <!-- Orders Tab -->
+      <div class="admin-tab-panel active" id="tab-orders">
+        <div class="admin-table-card">
+          <div class="admin-table-header">
+            <h3>All Orders</h3>
+            <button class="admin-refresh-btn" onclick="loadAdminData()">🔄 Refresh</button>
+          </div>
+          <div id="admin-orders-table">
+            <div class="admin-loading">Loading orders...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Users Tab -->
+      <div class="admin-tab-panel" id="tab-users">
+        <div class="admin-table-card">
+          <div class="admin-table-header">
+            <h3>All Users</h3>
+            <button class="admin-refresh-btn" onclick="loadAdminData()">🔄 Refresh</button>
+          </div>
+          <div id="admin-users-table">
+            <div class="admin-loading">Loading users...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Products Tab -->
+      <div class="admin-tab-panel" id="tab-products">
+
+        <!-- Add Product Form -->
+        <div class="admin-table-card" style="margin-bottom:24px;">
+          <div class="admin-table-header">
+            <h3>➕ Add New Product</h3>
+          </div>
+          <div style="padding:24px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+              <div class="admin-field">
+                <label>Product Name *</label>
+                <input type="text" id="prod-name" placeholder="e.g. Chiffon Hijab"/>
+              </div>
+              <div class="admin-field">
+                <label>Price (EG) *</label>
+                <input type="number" id="prod-price" placeholder="e.g. 150"/>
+              </div>
+            </div>
+
+            <!-- Image Upload Area -->
+            <div class="admin-field">
+              <label>Product Images * <span style="font-weight:400;color:#9e8e82;">(يمكنك رفع أكتر من صورة)</span></label>
+              <div class="prod-img-upload-area" id="prod-img-drop" onclick="document.getElementById('prod-img-input').click()">
+                <div class="prod-upload-icon">📁</div>
+                <p class="prod-upload-text">اضغط هنا أو اسحب الصور</p>
+                <p class="prod-upload-sub">PNG, JPG, WEBP مقبولة</p>
+                <input type="file" id="prod-img-input" multiple accept="image/*" style="display:none" onchange="handleProductImages(this)"/>
+              </div>
+              <div id="prod-img-previews" class="prod-img-previews"></div>
+            </div>
+
+            <p id="prod-form-error" style="color:#e07070;font-size:12px;min-height:16px;margin-bottom:8px;"></p>
+            <button class="admin-login-btn" style="width:auto;padding:12px 36px;" onclick="addProduct()">✅ Add Product</button>
+          </div>
+        </div>
+
+        <!-- Products List -->
+        <div class="admin-table-card">
+          <div class="admin-table-header">
+            <h3>📦 All Products</h3>
+            <div style="display:flex;gap:10px;align-items:center;">
+              <span id="products-count" style="font-size:13px;color:#9e8e82;"></span>
+              <button class="admin-refresh-btn" onclick="adminSeedProducts()" id="seed-btn">
+                🌱 Load Default Products
+              </button>
+            </div>
+          </div>
+          <div id="admin-products-list" style="padding:16px;">
+            <div class="admin-loading">Loading products...</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <script src="script.js"></script>
+<script>
+const ADMIN_EMAIL = 'admin@haj.com';
+const ADMIN_PASSWORD = 'admin123';
+let isAdminLoggedIn = false;
+
+function showAdminPage() {
+  ['main-page','checkout-page','new-collection-page','account-page','success-page','admin-page'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+  closeCart();
+  closeAuth();
+  const adminPage = document.getElementById('admin-page');
+  if (adminPage) adminPage.style.display = 'block';
+  const adminToken = localStorage.getItem('adminToken');
+  if (adminToken === 'admin_session_2025') {
+    showAdminDashboard();
+  } else {
+    showAdminLogin();
+  }
+  window.scrollTo(0,0);
+}
+
+function showAdminLogin() {
+  const loginScreen = document.getElementById('admin-login-screen');
+  const dashboard = document.getElementById('admin-dashboard');
+  if (loginScreen) loginScreen.style.display = 'flex';
+  if (dashboard) dashboard.style.display = 'none';
+}
+
+function showAdminDashboard() {
+  const loginScreen = document.getElementById('admin-login-screen');
+  const dashboard = document.getElementById('admin-dashboard');
+  if (loginScreen) loginScreen.style.display = 'none';
+  if (dashboard) dashboard.style.display = 'block';
+  loadAdminData();
+}
+
+function adminLogin() {
+  const email = document.getElementById('admin-email').value.trim();
+  const password = document.getElementById('admin-password').value;
+  const errorEl = document.getElementById('admin-login-error');
+  if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+    localStorage.setItem('adminToken', 'admin_session_2025');
+    isAdminLoggedIn = true;
+    if (errorEl) errorEl.innerText = '';
+    showAdminDashboard();
+  } else {
+    if (errorEl) errorEl.innerText = '❌ Wrong email or password';
+  }
+}
+
+function adminLogout() {
+  localStorage.removeItem('adminToken');
+  isAdminLoggedIn = false;
+  showAdminLogin();
+}
+
+function switchAdminTab(tab) {
+  document.querySelectorAll('.admin-tab-btn').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('.admin-tab-panel').forEach(panel => panel.classList.remove('active'));
+  event.target.classList.add('active');
+  const panel = document.getElementById('tab-' + tab);
+  if (panel) panel.classList.add('active');
+  if (tab === 'products') {
+    if (typeof renderAdminProductsList === 'function') renderAdminProductsList();
+  }
+}
+
+async function loadAdminData() {
+  try {
+    const statsData = await apiRequest('/admin/stats');
+    if (statsData.stats) {
+      document.getElementById('stat-revenue').innerText = statsData.stats.totalRevenue + ' EG';
+      document.getElementById('stat-orders').innerText = statsData.stats.totalOrders;
+      document.getElementById('stat-users').innerText = statsData.stats.totalUsers;
+      document.getElementById('stat-pending').innerText = statsData.stats.pendingOrders;
+    }
+    const ordersData = await apiRequest('/admin/orders');
+    renderAdminOrders(ordersData.orders || []);
+    const usersData = await apiRequest('/admin/users');
+    renderAdminUsers(usersData.users || []);
+  } catch (e) {
+    console.log('Admin API failed, showing demo data');
+    showDemoAdminData();
+  }
+}
+
+function showDemoAdminData() {
+  document.getElementById('stat-revenue').innerText = '0 EG';
+  document.getElementById('stat-orders').innerText = '0';
+  document.getElementById('stat-users').innerText = '2';
+  document.getElementById('stat-pending').innerText = '0';
+  document.getElementById('admin-orders-table').innerHTML = '<div class="admin-empty"><p>📦</p><p>No orders yet</p></div>';
+  document.getElementById('admin-users-table').innerHTML = `<table><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Orders</th></tr></thead><tbody><tr><td>user_1</td><td>halaa</td><td>jg@gmail.com</td><td><span class="abadge abadge-user">user</span></td><td>0</td></tr><tr><td>user_2</td><td>halaa</td><td>jgii@gmail.com</td><td><span class="abadge abadge-user">user</span></td><td>0</td></tr></tbody></table>`;
+}
+
+function renderAdminOrders(orders) {
+  const container = document.getElementById('admin-orders-table');
+  if (!orders || orders.length === 0) {
+    container.innerHTML = '<div class="admin-empty"><p>📦</p><p>No orders yet</p></div>';
+    return;
+  }
+  container.innerHTML = `<table><thead><tr><th>Order #</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th>Date</th><th>Action</th></tr></thead><tbody>${orders.map(o => `<tr><td>${o.orderNumber || o.id}</td><td>${o.shippingInfo?.fullName || 'N/A'}</td><td>${o.items ? o.items.map(i => i.name).join(', ') : ''}</td><td>${o.totalAmount || 0} EG</td><td><span class="abadge abadge-${o.orderStatus || 'pending'}">${o.orderStatus || 'pending'}</span></td><td>${o.createdAt ? new Date(o.createdAt).toLocaleDateString() : 'N/A'}</td><td><select class="status-select" onchange="updateOrderStatus('${o.id}', this.value)"><option value="pending" ${o.orderStatus === 'pending' ? 'selected' : ''}>Pending</option><option value="processing" ${o.orderStatus === 'processing' ? 'selected' : ''}>Processing</option><option value="shipped" ${o.orderStatus === 'shipped' ? 'selected' : ''}>Shipped</option><option value="delivered" ${o.orderStatus === 'delivered' ? 'selected' : ''}>Delivered</option><option value="cancelled" ${o.orderStatus === 'cancelled' ? 'selected' : ''}>Cancelled</option></select></td></tr>`).join('')}</tbody></table>`;
+}
+
+function renderAdminUsers(users) {
+  const container = document.getElementById('admin-users-table');
+  if (!users || users.length === 0) {
+    container.innerHTML = '<div class="admin-empty"><p>👤</p><p>No users found</p></div>';
+    return;
+  }
+  container.innerHTML = `<table><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Address</th><th>Role</th><th>Orders</th><th>Joined</th></tr></thead><tbody>${users.map(u => `<tr><td>${u.id}</td><td>${u.name}</td><td>${u.email}</td><td>${u.phone || '-'}</td><td>${u.address || '-'}</td><td><span class="abadge abadge-${u.role || 'user'}">${u.role || 'user'}</span></td><td>${u.ordersCount || 0}</td><td>${u.createdAt ? new Date(u.createdAt).toLocaleDateString() : 'N/A'}</td></tr>`).join('')}</tbody></table>`;
+}
+
+async function updateOrderStatus(orderId, status) {
+  try {
+    await apiRequest('/admin/orders/' + orderId + '/status', {method: 'PUT', body: JSON.stringify({status})});
+    alert('✅ Order status updated to: ' + status);
+    loadAdminData();
+  } catch (e) {
+    alert('❌ Failed to update status: ' + e.message);
+  }
+}
+
+async function adminSeedProducts() {
+  const btn = document.getElementById('seed-btn');
+  const existing = await apiRequest('/products').catch(() => ({products: []}));
+  if (existing.products && existing.products.length > 0) {
+    if (!confirm(`في ${existing.products.length} منتج بالفعل. عايز تضيف الـ default products فوقيهم؟`)) return;
+  }
+  if (btn) {btn.innerText = '⏳ Loading...'; btn.disabled = true;}
+  try {
+    for (const p of DEFAULT_PRODUCTS) {
+      await apiRequest('/products', {method: 'POST', body: JSON.stringify({...p, isBestSeller: false})});
+    }
+    await renderAdminProductsList();
+    buildNewCollection();
+    buildBestSellers();
+    if (btn) {btn.innerText = '✅ Done!'; btn.style.background = '#c8e6c9';}
+    setTimeout(() => {
+      if (btn) {btn.innerText = '🌱 Load Default Products'; btn.style.background = ''; btn.disabled = false;}
+    }, 2000);
+  } catch (e) {
+    alert('❌ فشل: ' + e.message);
+    if (btn) {btn.innerText = '🌱 Load Default Products'; btn.disabled = false;}
+  }
+}
+
+function checkAdminStatus() {
+  const adminToken = localStorage.getItem('adminToken');
+  const adminBtn = document.getElementById('admin-nav-btn');
+  if (adminToken === 'admin_session_2025' && adminBtn) {
+    adminBtn.style.display = 'block';
+  }
+}
+
+const originalLoginUser = loginUser;
+loginUser = function(user) {
+  originalLoginUser(user);
+  if (user && user.role === 'admin') {
+    const adminBtn = document.getElementById('admin-nav-btn');
+    if (adminBtn) adminBtn.style.display = 'block';
+  }
+};
+</script>
+
 </body>
 </html>
